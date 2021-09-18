@@ -10,12 +10,20 @@ type HandlerArgs struct {
 	RW      http.ResponseWriter
 	R       *http.Request
 	RawBody []byte
+	Context *Context
 }
 
 type Context struct {
 	IsSkipProcessing bool
 	RW               http.ResponseWriter
 	R                *http.Request
+}
+
+type File struct {
+	Name string
+	Mime string
+	Size int
+	Data []byte
 }
 
 type Handler interface {

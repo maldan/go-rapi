@@ -32,6 +32,12 @@ func (r ApiHandler) Handle(args rapi_core.HandlerArgs) {
 		return
 	}
 
+	// Create context
+	args.Context = &rapi_core.Context{
+		RW: args.RW,
+		R:  args.R,
+	}
+
 	// Collect params
 	params := map[string]interface{}{
 		"accessToken": args.R.Header.Get("Authorization"),
@@ -50,17 +56,20 @@ func (r ApiHandler) Handle(args rapi_core.HandlerArgs) {
 
 		// Collect files
 		if len(args.R.MultipartForm.File) > 0 {
-			files := make([][]byte, 0)
-			for _, fileHeaders := range args.R.MultipartForm.File {
+			for kk, fileHeaders := range args.R.MultipartForm.File {
 				for _, fileHeader := range fileHeaders {
 					f, _ := fileHeader.Open()
 					defer f.Close()
 					buffer := make([]byte, fileHeader.Size)
 					f.Read(buffer)
-					files = append(files, buffer)
+					params[kk] = rapi_core.File{
+						Name: fileHeader.Filename,
+						Mime: fileHeader.Header.Get("Content-Type"),
+						Size: int(fileHeader.Size),
+						Data: buffer,
+					}
 				}
 			}
-			params["files"] = files
 		}
 	} else {
 		defer args.R.Body.Close()
@@ -108,10 +117,10 @@ func (r ApiHandler) Handle(args rapi_core.HandlerArgs) {
 	}
 
 	// Call method
-	value, context := ExecuteMethod(r.Controller[controllerName], *method, args, params)
+	value := ExecuteMethod(r.Controller[controllerName], args, *method, params)
 
 	// Skip prepare and write
-	if context.IsSkipProcessing {
+	if args.Context.IsSkipProcessing {
 		return
 	}
 

@@ -106,7 +106,9 @@ func FillFieldList(s *reflect.Value, ss reflect.Type, params map[string]interfac
 				case reflect.Slice:
 					ApplySlice(&field, v)
 				case reflect.Struct:
-					if field.Type().Name() == "Time" {
+					if field.Type().Name() == "File" {
+						field.Set(reflect.ValueOf(v))
+					} else if field.Type().Name() == "Time" {
 						ApplyTime(&field, v)
 					} else {
 						if reflect.TypeOf(v).Kind() == reflect.Map {
@@ -156,18 +158,17 @@ func virtualCall(fn reflect.Method, args ...interface{}) reflect.Value {
 	return reflect.ValueOf("")
 }
 
-func ExecuteMethod(controller interface{}, method reflect.Method, args rapi_core.HandlerArgs, params map[string]interface{}) (reflect.Value, *rapi_core.Context) {
+func ExecuteMethod(
+	controller interface{},
+	args rapi_core.HandlerArgs,
+	method reflect.Method,
+	params map[string]interface{},
+) reflect.Value {
 	functionType := reflect.TypeOf(method.Func.Interface())
-
-	// Create context
-	context := &rapi_core.Context{
-		RW: args.RW,
-		R:  args.R,
-	}
 
 	// No args
 	if functionType.NumIn() == 1 {
-		return virtualCall(method, controller), context
+		return virtualCall(method, controller)
 	}
 
 	// Has 1 arg
@@ -179,22 +180,22 @@ func ExecuteMethod(controller interface{}, method reflect.Method, args rapi_core
 		// Is struct
 		if argType.Kind() == reflect.Struct {
 			FillFieldList(&argValue, argType, params)
-			return virtualCall(method, controller, argValue.Interface()), context
+			return virtualCall(method, controller, argValue.Interface())
 		}
 
 		// Is string
 		if argType.Kind() == reflect.String {
-			return virtualCall(method, controller, string(args.RawBody)), context
+			return virtualCall(method, controller, string(args.RawBody))
 		}
 
 		// Bytes
 		if argType.Kind() == reflect.Slice {
-			return virtualCall(method, controller, args.RawBody), context
+			return virtualCall(method, controller, args.RawBody)
 		}
 
 		// Context
 		if argType.Kind() == reflect.Ptr {
-			return virtualCall(method, controller, context), context
+			return virtualCall(method, controller, args.Context)
 		}
 	}
 
@@ -207,19 +208,19 @@ func ExecuteMethod(controller interface{}, method reflect.Method, args rapi_core
 		// Is struct
 		if argType.Kind() == reflect.Struct {
 			FillFieldList(&argValue, argType, params)
-			return virtualCall(method, controller, context, argValue.Interface()), context
+			return virtualCall(method, controller, args.Context, argValue.Interface())
 		}
 
 		// Is string
 		if argType.Kind() == reflect.String {
-			return virtualCall(method, controller, context, string(args.RawBody)), context
+			return virtualCall(method, controller, args.Context, string(args.RawBody))
 		}
 
 		// Bytes
 		if argType.Kind() == reflect.Slice {
-			return virtualCall(method, controller, context, args.RawBody), context
+			return virtualCall(method, controller, args.Context, args.RawBody)
 		}
 	}
 
-	return reflect.ValueOf(""), context
+	return reflect.ValueOf("")
 }
