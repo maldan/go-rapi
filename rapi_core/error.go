@@ -54,3 +54,11 @@ func Fatal(err Error) {
 
 	panic(err)
 }
+
+func FatalIfError(err error) {
+	if err != nil {
+		Fatal(Error{
+			Description: err.Error(),
+		})
+	}
+}

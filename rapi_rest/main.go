@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"strings"
 
 	"github.com/maldan/go-rapi/rapi_core"
@@ -121,6 +122,12 @@ func (r ApiHandler) Handle(args rapi_core.HandlerArgs) {
 
 	// Skip prepare and write
 	if args.Context.IsSkipProcessing {
+		return
+	}
+
+	// If return file path to server
+	if args.Context.IsServeFile {
+		http.ServeFile(args.RW, args.R, value.Interface().(string))
 		return
 	}
 

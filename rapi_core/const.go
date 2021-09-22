@@ -15,6 +15,7 @@ type HandlerArgs struct {
 
 type Context struct {
 	IsSkipProcessing bool
+	IsServeFile      bool
 	RW               http.ResponseWriter
 	R                *http.Request
 }
