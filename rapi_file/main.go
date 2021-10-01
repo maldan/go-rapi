@@ -14,6 +14,9 @@ type FileHandler struct {
 }
 
 func (r FileHandler) Handle(args rapi_core.HandlerArgs) {
+	// Handle panic
+	defer rapi_core.HandleError(args.RW, args.R)
+
 	cwd, _ := os.Getwd()
 	path := strings.ReplaceAll(r.Root, "@", cwd) + args.R.URL.Path
 	path = strings.ReplaceAll(path, "\\", "/")
