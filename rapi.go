@@ -1,6 +1,7 @@
 package rapi
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -39,6 +40,7 @@ func Start(config Config) {
 	})
 
 	// Start server
+	fmt.Println("Start server", config.Host)
 	if err := http.ListenAndServe(config.Host, nil); err != nil {
 		log.Fatal(err)
 		return
