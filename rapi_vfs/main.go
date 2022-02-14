@@ -33,8 +33,14 @@ func (r VFSHandler) Handle(args rapi_core.HandlerArgs) {
 
 	// Write to temp dir
 	p2 := os.TempDir() + "/rapi_vfs/" + fmt.Sprintf("%v", os.Getpid()) + "/" + p
-	os.MkdirAll(filepath.Dir(p2), 0777)
-	cmhp_file.WriteBin(p2, data)
+	err = os.MkdirAll(filepath.Dir(p2), 0777)
+	if err != nil {
+		panic(err)
+	}
+	err = cmhp_file.Write(p2, data)
+	if err != nil {
+		panic(err)
+	}
 
 	// Serve file
 	rapi_core.DisableCors(args.RW)

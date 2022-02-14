@@ -104,6 +104,18 @@ func (r ApiHandler) Handle(args rapi_core.HandlerArgs) {
 		methodName = "Index"
 	}
 
+	// Check controller
+	_, ok := r.Controller[controllerName]
+	if !ok {
+		rapi_core.Fatal(rapi_core.Error{
+			Code: 404,
+			Description: fmt.Sprintf(
+				"Controller %v not found",
+				controllerName,
+			),
+		})
+	}
+
 	// Get method
 	method := GetMethod(r.Controller[controllerName], methodName, args.R.Method)
 	if method == nil {

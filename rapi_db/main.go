@@ -38,7 +38,7 @@ func Save(v interface{}) {
 	cmhp_reflect.SetField(v, "Created", time.Now())
 
 	// Save to file
-	err := cmhp_file.WriteJSON(DbPath+"/"+name+"/"+id+".json", v)
+	err := cmhp_file.Write(DbPath+"/"+name+"/"+id+".json", v)
 	if err != nil {
 		rapi_core.Fatal(rapi_core.Error{
 			Description: err.Error(),
@@ -50,7 +50,7 @@ func Update(id string, v interface{}) {
 	name := strings.ToLower(reflect.TypeOf(v).Elem().Name())
 
 	// Save to file
-	err := cmhp_file.WriteJSON(DbPath+"/"+name+"/"+id+".json", v)
+	err := cmhp_file.Write(DbPath+"/"+name+"/"+id+".json", v)
 	if err != nil {
 		rapi_core.Fatal(rapi_core.Error{
 			Description: err.Error(),
