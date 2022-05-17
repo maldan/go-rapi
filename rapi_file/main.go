@@ -1,7 +1,6 @@
 package rapi_file
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -18,9 +17,12 @@ func (r FileHandler) Handle(args rapi_core.HandlerArgs) {
 	defer rapi_core.HandleError(args.RW, args.R)
 
 	cwd, _ := os.Getwd()
-	path := strings.ReplaceAll(r.Root, "@", cwd) + args.R.URL.Path
+
+	// Pure path without route // example /data/test -> /test
+	routePath := strings.Replace(args.R.URL.Path, args.Route, "", 1)
+	
+	path := strings.ReplaceAll(r.Root, "@", cwd) + routePath
 	path = strings.ReplaceAll(path, "\\", "/")
-	fmt.Println(path)
 
 	rapi_core.DisableCors(args.RW)
 	http.ServeFile(args.RW, args.R, path)

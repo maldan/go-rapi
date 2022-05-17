@@ -108,9 +108,12 @@ func (r DebugApi) GetMethodList() []Method {
 							continue
 						}
 					} */
+					var argument interface{}
 
 					// Get argument
-					argument := reflect.New(methodType.In(1)).Interface()
+					if methodType.NumIn() == 2 {
+						argument = reflect.New(methodType.In(1)).Interface()
+					}
 
 					// 2 Args
 					if methodType.NumIn() == 3 {
@@ -118,15 +121,17 @@ func (r DebugApi) GetMethodList() []Method {
 					}
 
 					// Add method
-					out = append(out, Method{
+					m := Method{
 						FullPath: k + "/" + route + "/" + methodName,
 
 						Controller: route,
 						HttpMethod: httpMethod,
 						Name:       methodName,
-
-						Input: GetInput("", argument),
-					})
+					}
+					if argument != nil {
+						m.Input = GetInput("", argument)
+					}
+					out = append(out, m)
 
 					/*methodStruct := make([]MethodStruct, 0)
 

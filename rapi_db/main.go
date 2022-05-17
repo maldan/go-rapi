@@ -20,7 +20,7 @@ func Load(id string, v interface{}) {
 		rapi_core.Fatal(rapi_core.Error{
 			Code:        404,
 			Description: fmt.Sprintf("%v with id %v not found", strings.Title(name), id),
-		})
+		}) 
 	}
 	err := cmhp_file.ReadJSON(DbPath+"/"+name+"/"+id+".json", v)
 	if err != nil {

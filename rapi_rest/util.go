@@ -36,19 +36,10 @@ func ApplyInt(field *reflect.Value, v interface{}) {
 
 func ApplyFloat(field *reflect.Value, v interface{}) {
 	switch reflect.TypeOf(v).Kind() {
-	case reflect.Uint64:
-	case reflect.Uint32:
-	case reflect.Uint16:
-	case reflect.Uint8:
-	case reflect.Uint:
-	case reflect.Int64:
-	case reflect.Int32:
-	case reflect.Int16:
-	case reflect.Int8:
-	case reflect.Int:
+	case reflect.Uint64, reflect.Uint32, reflect.Uint16, reflect.Uint8, reflect.Uint,
+		reflect.Int64, reflect.Int32, reflect.Int16, reflect.Int8, reflect.Int:
 		field.SetFloat(float64(v.(int64)))
-	case reflect.Float32:
-	case reflect.Float64:
+	case reflect.Float32, reflect.Float64:
 		field.SetFloat(v.(float64))
 	case reflect.String:
 		i, _ := strconv.ParseFloat(v.(string), 64)
@@ -104,9 +95,26 @@ func ApplySlice(field *reflect.Value, v interface{}) {
 
 	// Fill other slice
 	slice := reflect.MakeSlice(field.Type(), len, len)
+
 	for i := 0; i < len; i++ {
 		index := slice.Index(i)
-		index.Set(reflect.ValueOf(v).Index(i).Elem().Convert(index.Type()))
+		// fmt.Printf("%v\n", )
+
+		// Each element of slice contains map
+		if reflect.ValueOf(v).Index(i).Elem().Type().Kind() == reflect.Map {
+			//elem := reflect.ValueOf(reflect.ValueOf(v).Index(i).Elem())
+			val := reflect.ValueOf(v).Index(i).Interface().(map[string]interface{})
+
+			/*fmt.Printf("%v\n", index.Type())
+			fmt.Printf("%v\n", elem)*/
+			FillFieldList(
+				&index,
+				index.Type(),
+				val,
+			)
+		} else {
+			index.Set(reflect.ValueOf(v).Index(i).Elem().Convert(index.Type()))
+		}
 	}
 	field.Set(slice)
 }

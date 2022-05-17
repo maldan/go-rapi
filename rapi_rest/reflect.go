@@ -87,19 +87,10 @@ func FillFieldList(s *reflect.Value, ss reflect.Type, params map[string]interfac
 				switch field.Kind() {
 				case reflect.String:
 					ApplyString(&field, v)
-				case reflect.Uint64:
-				case reflect.Uint32:
-				case reflect.Uint16:
-				case reflect.Uint8:
-				case reflect.Uint:
-				case reflect.Int64:
-				case reflect.Int32:
-				case reflect.Int16:
-				case reflect.Int8:
-				case reflect.Int:
+				case reflect.Uint64, reflect.Uint32, reflect.Uint16, reflect.Uint8, reflect.Uint,
+					reflect.Int64, reflect.Int32, reflect.Int16, reflect.Int8, reflect.Int:
 					ApplyInt(&field, v)
-				case reflect.Float32:
-				case reflect.Float64:
+				case reflect.Float32, reflect.Float64:
 					ApplyFloat(&field, v)
 				case reflect.Bool:
 					ApplyBool(&field, v)

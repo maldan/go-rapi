@@ -14,6 +14,9 @@ type Config struct {
 	Host   string
 	Router map[string]rapi_core.Handler
 	DbPath string
+	IsHttps bool
+	KeyFile string
+	CertFile string
 }
 
 func Start(config Config) {
@@ -39,8 +42,16 @@ func Start(config Config) {
 	})
 
 	// Start server
-	if err := http.ListenAndServe(config.Host, nil); err != nil {
-		log.Fatal(err)
-		return
+	if (config.IsHttps) {
+		err := http.ListenAndServeTLS(config.Host, config.CertFile, config.KeyFile, nil)
+		if err != nil {
+			log.Fatal("ListenAndServe: ", err)
+		}
+	} else {
+		if err := http.ListenAndServe(config.Host, nil); err != nil {
+			log.Fatal(err)
+			return
+		}
 	}
+
 }
