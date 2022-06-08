@@ -3,6 +3,7 @@ package rapi_core
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/maldan/go-rapi/rapi_log"
 	"net/http"
 	"runtime"
 	"runtime/debug"
@@ -51,6 +52,8 @@ func Fatal(err Error) {
 	err.File = strings.Join(ff[len(ff)-2:], "/")
 	err.Line = line
 	err.Created = time.Now()
+
+	rapi_log.Error(err.Description)
 
 	panic(err)
 }

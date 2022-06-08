@@ -1,6 +1,7 @@
 package rapi
 
 import (
+	"github.com/maldan/go-rapi/rapi_log"
 	"log"
 	"net/http"
 
@@ -11,11 +12,11 @@ import (
 )
 
 type Config struct {
-	Host   string
-	Router map[string]rapi_core.Handler
-	DbPath string
-	IsHttps bool
-	KeyFile string
+	Host     string
+	Router   map[string]rapi_core.Handler
+	DbPath   string
+	IsHttps  bool
+	KeyFile  string
 	CertFile string
 }
 
@@ -24,6 +25,7 @@ func Start(config Config) {
 	config.Router["/debug"] = rapi_rest.ApiHandler{
 		Controller: map[string]interface{}{
 			"api": rapi_doc.DebugApi{},
+			"log": rapi_log.LogApi{},
 		},
 	}
 
@@ -42,7 +44,7 @@ func Start(config Config) {
 	})
 
 	// Start server
-	if (config.IsHttps) {
+	if config.IsHttps {
 		err := http.ListenAndServeTLS(config.Host, config.CertFile, config.KeyFile, nil)
 		if err != nil {
 			log.Fatal("ListenAndServe: ", err)
