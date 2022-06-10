@@ -1,15 +1,24 @@
 package rapi
 
 import (
-	"github.com/maldan/go-rapi/rapi_log"
-	"log"
-	"net/http"
-
+	_ "embed"
 	"github.com/maldan/go-rapi/rapi_core"
 	"github.com/maldan/go-rapi/rapi_db"
 	"github.com/maldan/go-rapi/rapi_doc"
+	"github.com/maldan/go-rapi/rapi_log"
 	"github.com/maldan/go-rapi/rapi_rest"
+	"log"
+	"net/http"
 )
+
+//go:embed panel/dist/index.html
+var PanelPage string
+
+//go:embed panel/dist/assets/index.cee9607d.js
+var PanelJs string
+
+//go:embed panel/dist/assets/index.6a4c5700.css
+var PanelCss string
 
 type Config struct {
 	Host     string
@@ -21,15 +30,20 @@ type Config struct {
 }
 
 func Start(config Config) {
+
 	// Set debug api
 	config.Router["/debug"] = rapi_rest.ApiHandler{
 		Controller: map[string]interface{}{
-			"api": rapi_doc.DebugApi{},
-			"log": rapi_log.LogApi{},
+			"api":   rapi_doc.DebugApi{},
+			"log":   rapi_log.LogApi{},
+			"panel": rapi_doc.DebugPanelApi{},
 		},
 	}
 
 	// Set router for debug
+	rapi_doc.PanelPage = PanelPage
+	rapi_doc.PanelJs = PanelJs
+	rapi_doc.PanelCss = PanelCss
 	rapi_doc.Router = config.Router
 	rapi_db.DbPath = config.DbPath
 
@@ -55,5 +69,4 @@ func Start(config Config) {
 			return
 		}
 	}
-
 }

@@ -15,6 +15,9 @@ import (
 type DebugApi struct {
 }
 
+type DebugPanelApi struct {
+}
+
 /*type MethodStruct struct {
 	Name  string      `json:"name"`
 	Type  string      `json:"type"`
@@ -40,6 +43,9 @@ type Method struct {
 }
 
 var Router map[string]rapi_core.Handler
+var PanelPage string
+var PanelJs string
+var PanelCss string
 
 func GetInput(name string, arg interface{}) *MethodInput {
 	argValue := reflect.ValueOf(arg).Elem()
@@ -81,6 +87,24 @@ func GetInput(name string, arg interface{}) *MethodInput {
 		Kind:      argValue.Type().Kind().String(),
 		FieldList: make([]*MethodInput, 0),
 	}
+}
+
+func (r DebugPanelApi) GetIndex(ctx *rapi_core.Context) {
+	ctx.IsSkipProcessing = true
+	ctx.RW.Header().Set("Content-Type", "text/html")
+	ctx.RW.Write([]byte(PanelPage))
+}
+
+func (r DebugPanelApi) GetJs(ctx *rapi_core.Context) {
+	ctx.IsSkipProcessing = true
+	ctx.RW.Header().Set("Content-Type", "text/javascript")
+	ctx.RW.Write([]byte(PanelJs))
+}
+
+func (r DebugPanelApi) GetCss(ctx *rapi_core.Context) {
+	ctx.IsSkipProcessing = true
+	ctx.RW.Header().Set("Content-Type", "text/css")
+	ctx.RW.Write([]byte(PanelCss))
 }
 
 func (r DebugApi) GetMethodList() []Method {
