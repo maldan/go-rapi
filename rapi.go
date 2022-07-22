@@ -45,6 +45,7 @@ func Start(config Config) {
 	rapi_doc.PanelJs = PanelJs
 	rapi_doc.PanelCss = PanelCss
 	rapi_doc.Router = config.Router
+	rapi_doc.Host = config.Host
 	rapi_db.DbPath = config.DbPath
 
 	// Entry point

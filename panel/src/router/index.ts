@@ -1,27 +1,26 @@
-import {
-  createRouter,
-  createWebHashHistory,
-  createWebHistory,
-} from "vue-router";
-import Main from "../page/Main.vue";
+import { createRouter, createWebHashHistory } from "vue-router";
+import Logs from "../page/Logs.vue";
+import Methods from "../page/Methods.vue";
+import Test from "../page/Test.vue";
 
 const router = createRouter({
   history: createWebHashHistory(),
-  //history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: "/",
-      name: "Main",
-      component: Main,
+      name: "Logs",
+      component: Logs,
     },
-    /*{
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../page/AboutView.vue')
-    }*/
+    {
+      path: "/methods",
+      name: "Methods",
+      component: Methods,
+    },
+    {
+      path: "/test",
+      name: "Test",
+      component: Test,
+    },
   ],
 });
 

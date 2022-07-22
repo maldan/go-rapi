@@ -14,6 +14,7 @@ type HandlerArgs struct {
 }
 
 type Context struct {
+	AccessToken      string
 	IsSkipProcessing bool
 	IsServeFile      bool
 	RW               http.ResponseWriter

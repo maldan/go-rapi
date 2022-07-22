@@ -34,6 +34,7 @@ type MethodInput struct {
 
 type Method struct {
 	FullPath string `json:"fullPath"`
+	Url      string `json:"url"`
 
 	Controller string `json:"controller"`
 	HttpMethod string `json:"httpMethod"`
@@ -46,6 +47,7 @@ var Router map[string]rapi_core.Handler
 var PanelPage string
 var PanelJs string
 var PanelCss string
+var Host string
 
 func GetInput(name string, arg interface{}) *MethodInput {
 	argValue := reflect.ValueOf(arg).Elem()
@@ -147,6 +149,7 @@ func (r DebugApi) GetMethodList() []Method {
 					// Add method
 					m := Method{
 						FullPath: k + "/" + route + "/" + methodName,
+						Url:      "//" + Host + k + "/" + route + "/" + methodName,
 
 						Controller: route,
 						HttpMethod: httpMethod,

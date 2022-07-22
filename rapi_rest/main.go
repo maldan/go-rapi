@@ -35,8 +35,9 @@ func (r ApiHandler) Handle(args rapi_core.HandlerArgs) {
 
 	// Create context
 	args.Context = &rapi_core.Context{
-		RW: args.RW,
-		R:  args.R,
+		AccessToken: args.R.Header.Get("Authorization"),
+		RW:          args.RW,
+		R:           args.R,
 	}
 
 	// Collect params

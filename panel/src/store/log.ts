@@ -14,7 +14,7 @@ export const useLogStore = defineStore({
   actions: {
     async getList(date: string) {
       this.items = (
-        await Axios.get(`http://localhost:5000/debug/log/search?date=${date}`)
+        await Axios.get(`http://localhost:16000/debug/log/search?date=${date}`)
       ).data.response;
     },
   },

@@ -1,0 +1,3 @@
+[submodule "panel/src/gam-lib-ui"]
+	path = panel/src/gam-lib-ui
+	url = https://github.com/maldan/gam-lib-ui

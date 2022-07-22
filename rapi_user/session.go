@@ -168,6 +168,10 @@ func GetUserData(uid string, kind string, v any) error {
 	return cmhp_file.ReadJSON(dbPath+"/user/"+uid+"/"+kind+".json", v)
 }
 
+func GetUserDataDir(uid string) string {
+	return dbPath + "/user/" + uid
+}
+
 func SaveUserData(uid string, kind string, v any) error {
 	return cmhp_file.Write(dbPath+"/user/"+uid+"/"+kind+".json", v)
 }
