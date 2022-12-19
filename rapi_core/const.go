@@ -6,11 +6,12 @@ import (
 )
 
 type HandlerArgs struct {
-	Route   string
-	RW      http.ResponseWriter
-	R       *http.Request
-	RawBody []byte
-	Context *Context
+	Route              string
+	RW                 http.ResponseWriter
+	R                  *http.Request
+	RawBody            []byte
+	Context            *Context
+	DisableJsonWrapper bool
 }
 
 type Context struct {

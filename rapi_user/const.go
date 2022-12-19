@@ -20,5 +20,8 @@ type User struct {
 	Password string `json:"password"`
 	Role     string `json:"role"`
 
+	// Additional
+	Phone string `json:"phone"`
+
 	Created time.Time `json:"created"`
 }

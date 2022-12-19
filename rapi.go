@@ -14,19 +14,20 @@ import (
 //go:embed panel/dist/index.html
 var PanelPage string
 
-//go:embed panel/dist/assets/index.cee9607d.js
+//go:embed panel/dist/assets/index.d398e5c1.js
 var PanelJs string
 
-//go:embed panel/dist/assets/index.6a4c5700.css
+//go:embed panel/dist/assets/index.96d05a2d.css
 var PanelCss string
 
 type Config struct {
-	Host     string
-	Router   map[string]rapi_core.Handler
-	DbPath   string
-	IsHttps  bool
-	KeyFile  string
-	CertFile string
+	Host               string
+	Router             map[string]rapi_core.Handler
+	DbPath             string
+	IsHttps            bool
+	KeyFile            string
+	CertFile           string
+	DisableJsonWrapper bool
 }
 
 func Start(config Config) {
@@ -52,9 +53,10 @@ func Start(config Config) {
 	http.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
 		route, handler := rapi_core.GetHandler(r.URL.Path, config.Router)
 		handler.Handle(rapi_core.HandlerArgs{
-			Route: route,
-			RW:    rw,
-			R:     r,
+			Route:              route,
+			RW:                 rw,
+			R:                  r,
+			DisableJsonWrapper: config.DisableJsonWrapper,
 		})
 	})
 

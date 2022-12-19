@@ -1,7 +1,9 @@
 package rapi_log
 
 import (
+	"fmt"
 	"github.com/maldan/go-cmhp/cmhp_slice"
+	"github.com/maldan/go-cmhp/cmhp_time"
 	"sync"
 	"time"
 )
@@ -22,24 +24,28 @@ type ArgsSearch struct {
 var mu sync.Mutex
 var logList = make([]LogData, 0)
 
-func Error(message string) {
-	mu.Lock()
+func Error(format string, a ...any) {
+	/*mu.Lock()
 	defer mu.Unlock()
 	logList = append(logList, LogData{
 		Kind:    "error",
 		Message: message,
 		Time:    time.Now(),
-	})
+	})*/
+	msg := fmt.Sprintf(format, a...)
+	fmt.Errorf("[ERR ] (%v) - %v\n", cmhp_time.Format(time.Now(), "YYYY-MM-DD HH:mm:ss.SSS"), msg)
 }
 
-func Info(message string) {
-	mu.Lock()
+func Info(format string, a ...any) {
+	/*mu.Lock()
 	defer mu.Unlock()
 	logList = append(logList, LogData{
 		Kind:    "info",
 		Message: message,
 		Time:    time.Now(),
-	})
+	})*/
+	msg := fmt.Sprintf(format, a...)
+	fmt.Printf("[INFO] (%v) - %v\n", cmhp_time.Format(time.Now(), "YYYY-MM-DD HH:mm:ss.SSS"), msg)
 }
 
 func (r LogApi) GetIndex() []LogData {

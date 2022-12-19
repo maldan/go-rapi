@@ -2,7 +2,9 @@ package rapi_doc
 
 import (
 	_ "embed"
+	"encoding/json"
 	"fmt"
+	"github.com/maldan/go-cmhp/cmhp_crypto"
 	"reflect"
 	"regexp"
 	"strings"
@@ -41,6 +43,10 @@ type Method struct {
 	Name       string `json:"name"`
 
 	Input *MethodInput `json:"input"`
+}
+
+type ArgsPostmanCollection struct {
+	IsHttps bool `json:"isHttps"`
 }
 
 var Router map[string]rapi_core.Handler
@@ -185,4 +191,127 @@ func (r DebugApi) GetMethodList() []Method {
 	}
 
 	return out
+}
+
+func FillBody(input *MethodInput, out *map[string]any) {
+	//(*out)[input.Name] = ""
+	for _, f := range input.FieldList {
+		if f.Type == "int" || f.Type == "uint" || f.Type == "int32" || f.Type == "uint32" {
+			(*out)[f.Name] = 0
+		} else if f.Type == "float32" || f.Type == "float64" {
+			(*out)[f.Name] = 0.0
+		} else if f.Kind == reflect.Slice.String() {
+			(*out)[f.Name] = make([]string, 0)
+		} else {
+			(*out)[f.Name] = ""
+		}
+	}
+}
+
+func QueryStr(input *MethodInput) string {
+	x := ""
+	for _, f := range input.FieldList {
+		x += f.Name + "=&"
+	}
+	return x
+}
+
+func (r DebugApi) GetPostmanCollection(ctx *rapi_core.Context) any {
+	// items := make([]any, 0)
+	methodList := r.GetMethodList()
+
+	// Protocol
+	protocol := "http://"
+	if ctx.R.Header.Get("X-Forwarded-Proto") != "" {
+		protocol = ctx.R.Header.Get("X-Forwarded-Proto") + "://"
+	}
+
+	type folder struct {
+		Name string `json:"name"`
+		Item []any  `json:"item"`
+	}
+	folders := make(map[string]folder)
+
+	for _, m := range methodList {
+		if m.HttpMethod == "GET" {
+			item := map[string]any{
+				"name": m.Name,
+				"request": map[string]any{
+					"url":    protocol + ctx.R.Host + m.FullPath + "?" + QueryStr(m.Input),
+					"method": m.HttpMethod,
+				},
+			}
+			_, ok := folders[m.Controller]
+			if !ok {
+				items := make([]any, 0)
+				items = append(items, item)
+				folders[m.Controller] = folder{
+					Name: m.Controller,
+					Item: items,
+				}
+			} else {
+				items := folders[m.Controller].Item
+				items = append(items, item)
+				folders[m.Controller] = folder{
+					Name: m.Controller,
+					Item: items,
+				}
+			}
+		} else {
+			bodyFormat := map[string]any{}
+			FillBody(m.Input, &bodyFormat)
+			bodyStr, _ := json.Marshal(&bodyFormat)
+
+			item := map[string]any{
+				"name": m.Name,
+				"request": map[string]any{
+					"url":    protocol + ctx.R.Host + m.FullPath,
+					"method": m.HttpMethod,
+					"header": []any{
+						map[string]any{
+							"key":   "Content-Type",
+							"value": "application/json",
+						},
+					},
+					"body": map[string]any{
+						"mode": "raw",
+						"raw":  string(bodyStr),
+					},
+				},
+			}
+
+			_, ok := folders[m.Controller]
+			if !ok {
+				items := make([]any, 0)
+				items = append(items, item)
+				folders[m.Controller] = folder{
+					Name: m.Controller,
+					Item: items,
+				}
+			} else {
+				items := folders[m.Controller].Item
+				items = append(items, item)
+				folders[m.Controller] = folder{
+					Name: m.Controller,
+					Item: items,
+				}
+			}
+		}
+	}
+
+	// Combine all
+	items := make([]any, 0)
+	for _, folder := range folders {
+		items = append(items, folder)
+	}
+
+	return map[string]any{
+		"info": map[string]any{
+			"name":        ctx.R.Host + " Api",
+			"_postman_id": cmhp_crypto.Sha1(ctx.R.Host),
+			"description": fmt.Sprintf("%v Api", ctx.R.Host),
+			"schema":      "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		},
+		"item": items,
+	}
 }

@@ -145,10 +145,17 @@ func (r ApiHandler) Handle(args rapi_core.HandlerArgs) {
 	}
 
 	// Prepare response
-	data, err := json.Marshal(&Response{
-		Status:   true,
-		Response: value.Interface(),
-	})
+	var res any
+	if args.DisableJsonWrapper {
+		res = value.Interface()
+	} else {
+		res = Response{
+			Status:   true,
+			Response: value.Interface(),
+		}
+	}
+	data, err := json.Marshal(&res)
+
 	if err != nil {
 		rapi_core.Fatal(rapi_core.Error{
 			Description: err.Error(),

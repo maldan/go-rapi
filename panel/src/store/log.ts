@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import Axios from "axios";
+import { HOST } from "@/const";
 
 export type LogState = {
   items: { kind: string; message: string; time: string }[];
@@ -14,7 +15,7 @@ export const useLogStore = defineStore({
   actions: {
     async getList(date: string) {
       this.items = (
-        await Axios.get(`http://localhost:16000/debug/log/search?date=${date}`)
+        await Axios.get(`${HOST}/debug/log/search?date=${date}`)
       ).data.response;
     },
   },
