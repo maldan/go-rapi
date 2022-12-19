@@ -55,6 +55,7 @@ var PanelJs string
 var PanelCss string
 var Host string
 
+// s
 func GetInput(name string, arg interface{}) *MethodInput {
 	argValue := reflect.ValueOf(arg).Elem()
 	argType := reflect.TypeOf(arg).Elem()
