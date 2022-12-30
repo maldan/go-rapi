@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import Logs from "../page/Logs.vue";
 import Methods from "../page/Methods.vue";
-import Test from "../page/Test.vue";
+import Settings from "../page/Settings.vue";
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -17,9 +17,9 @@ const router = createRouter({
       component: Methods,
     },
     {
-      path: "/test",
-      name: "Test",
-      component: Test,
+      path: "/settings",
+      name: "Settings",
+      component: Settings,
     },
   ],
 });

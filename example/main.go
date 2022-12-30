@@ -19,10 +19,11 @@ func main() {
 			"/": rapi_file.FileHandler{Root: "@"},
 			"/api": rapi_rest.ApiHandler{
 				Controller: map[string]interface{}{
-					"test":  TestApi{},
-					"test2": Test2Api{},
+					"user":     UserApi{},
+					"template": TemplateApi{},
 				},
 			},
 		},
+		DisableJsonWrapper: true,
 	})
 }

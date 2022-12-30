@@ -33,17 +33,22 @@ func (r ApiHandler) Handle(args rapi_core.HandlerArgs) {
 		return
 	}
 
+	// Get authorization
+	authorization := args.R.Header.Get("Authorization")
+	authorization = strings.Replace(authorization, "Token ", "", 1)
+
 	// Create context
 	args.Context = &rapi_core.Context{
-		AccessToken: args.R.Header.Get("Authorization"),
+		AccessToken: authorization,
 		RW:          args.RW,
 		R:           args.R,
 	}
 
 	// Collect params
 	params := map[string]interface{}{
-		"accessToken": args.R.Header.Get("Authorization"),
+		"accessToken": authorization,
 	}
+
 	for key, element := range args.R.URL.Query() {
 		params[key] = element[0]
 	}
@@ -61,9 +66,9 @@ func (r ApiHandler) Handle(args rapi_core.HandlerArgs) {
 			for kk, fileHeaders := range args.R.MultipartForm.File {
 				for _, fileHeader := range fileHeaders {
 					f, _ := fileHeader.Open()
-					defer f.Close()
 					buffer := make([]byte, fileHeader.Size)
 					f.Read(buffer)
+					f.Close()
 					params[kk] = rapi_core.File{
 						Name: fileHeader.Filename,
 						Mime: fileHeader.Header.Get("Content-Type"),

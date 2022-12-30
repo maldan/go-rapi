@@ -2,15 +2,13 @@ package main
 
 import (
 	"fmt"
-	"time"
-
-	"github.com/maldan/go-rapi/rapi_core"
+	"github.com/maldan/go-cmhp/cmhp_file"
 )
 
-type TestApi struct{}
-type Test2Api struct{}
+type UserApi struct{}
+type TemplateApi struct{}
 
-type Sas struct {
+/*type Sas struct {
 	X string
 }
 
@@ -25,50 +23,46 @@ type XArgs struct {
 	H time.Time
 }
 
-type ArgsId struct {
-	Id string
-}
-
 type ArgsFile struct {
 	Sus rapi_core.File
+}*/
+
+var user User
+var templateList = make([]Template, 0)
+
+func (u UserApi) GetIndex() User {
+	return user
 }
 
-func (u TestApi) GetSasageo(args ArgsId) string {
-	fmt.Println(6, args)
-	return "99"
+func (u UserApi) GetList() []string {
+	return []string{"a", "b", "c"}
 }
 
-func (u TestApi) PostSasageo(args XArgs) string {
-	fmt.Println(6, args)
-	return "99"
+func (u UserApi) PostIndex(args User) {
+	user.Email = args.Email
+	user.Password = args.Password
 }
 
-func (u TestApi) PatchSasageo(args XArgs) string {
-	fmt.Println(6, args)
-	return "99"
+func (u UserApi) PatchIndex(args User) {
+	user.Email = args.Email
+	user.Password = args.Password
 }
 
-func (u TestApi) DeleteSasageo(args ArgsId) string {
-	fmt.Println(6, args)
-	return "99"
+func (u UserApi) DeleteIndex(args ArgsId) {
+	user.Email = ""
+	user.Password = ""
 }
 
-func (u Test2Api) GetSasageo(args ArgsId) string {
-	fmt.Println(6, args)
-	return "99"
+func (u TemplateApi) PostIndex(args Template) {
+	templateList = append(templateList, args)
 }
 
-func (u Test2Api) PostSasageo(args ArgsFile) string {
-	fmt.Println(args.Sus.Name)
-	return "99"
+func (u TemplateApi) PostPhoto(args ArgsPhoto) {
+	fmt.Printf("%v\n", args.File.Name)
+	fmt.Printf("%v\n", args.File.Mime)
+	cmhp_file.Write("sas.png", args.File.Data)
 }
 
-func (u Test2Api) PatchSasageo(args XArgs) string {
-	fmt.Println(6, args)
-	return "99"
-}
-
-func (u Test2Api) DeleteSasageo(args ArgsId) string {
-	fmt.Println(6, args)
-	return "99"
+func (u TemplateApi) GetList() []Template {
+	return templateList
 }

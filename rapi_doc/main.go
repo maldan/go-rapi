@@ -35,12 +35,15 @@ type MethodInput struct {
 }
 
 type Method struct {
+	Uid string `json:"uid"`
+
 	FullPath string `json:"fullPath"`
 	Url      string `json:"url"`
 
-	Controller string `json:"controller"`
-	HttpMethod string `json:"httpMethod"`
-	Name       string `json:"name"`
+	Controller  string `json:"controller"`
+	HttpMethod  string `json:"httpMethod"`
+	Name        string `json:"name"`
+	InputMethod string `json:"inputMethod"`
 
 	Input *MethodInput `json:"input"`
 }
@@ -55,10 +58,13 @@ var PanelJs string
 var PanelCss string
 var Host string
 
-// s
-func GetInput(name string, arg interface{}) *MethodInput {
+func GetInput(method *Method, name string, arg interface{}) *MethodInput {
 	argValue := reflect.ValueOf(arg).Elem()
 	argType := reflect.TypeOf(arg).Elem()
+
+	if fmt.Sprintf("%v", argValue.Type()) == "rapi_core.File" {
+		method.InputMethod = "multipart"
+	}
 
 	// If arg is struct
 	if argValue.Type().Kind() == reflect.Struct {
@@ -72,15 +78,10 @@ func GetInput(name string, arg interface{}) *MethodInput {
 		// Go over fields
 		amount := argValue.NumField()
 		for i := 0; i < amount; i++ {
-			/*m.FieldList = append(m.FieldList, &MethodInput{
-				Name: cmhp_string.LowerFirst(argType.Field(i).Name),
-				Type: fmt.Sprintf("%v", argValue.Field(i).Type()),
-				Kind: argValue.Field(i).Kind().String(),
-			})*/
-
 			m.FieldList = append(
 				m.FieldList,
 				GetInput(
+					method,
 					cmhp_string.LowerFirst(argType.Field(i).Name),
 					reflect.New(argValue.Field(i).Type()).Interface(),
 				),
@@ -155,6 +156,7 @@ func (r DebugApi) GetMethodList() []Method {
 
 					// Add method
 					m := Method{
+						Uid:      httpMethod + "_" + methodName + "_" + route,
 						FullPath: k + "/" + route + "/" + methodName,
 						Url:      "//" + Host + k + "/" + route + "/" + methodName,
 
@@ -162,8 +164,11 @@ func (r DebugApi) GetMethodList() []Method {
 						HttpMethod: httpMethod,
 						Name:       methodName,
 					}
+
+					m.InputMethod = "json"
+
 					if argument != nil {
-						m.Input = GetInput("", argument)
+						m.Input = GetInput(&m, "", argument)
 					}
 					out = append(out, m)
 

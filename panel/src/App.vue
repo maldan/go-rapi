@@ -1,11 +1,33 @@
-<script setup lang="ts">
-import { RouterView } from "vue-router";
-import { ModalView } from "@/gam-lib-ui/vue/component/ui";
-</script>
-
 <template>
-  <RouterView />
-  <ModalView />
+  <div :class="$style.mainApp">
+    <el-menu
+      :default-active="$route.path"
+      class="el-menu-demo"
+      mode="horizontal"
+      @select="handleSelect"
+    >
+      <el-menu-item index="/logs">Logs</el-menu-item>
+      <el-menu-item index="/methods">Methods</el-menu-item>
+      <el-menu-item index="/settings">Settings</el-menu-item>
+    </el-menu>
+
+    <RouterView />
+  </div>
 </template>
 
-<style></style>
+<script lang="ts" setup>
+import { RouterView, useRouter } from "vue-router";
+import { ModalView } from "@/gam-lib-ui/vue/component/ui";
+
+const router = useRouter();
+
+const handleSelect = (key: string, keyPath: string[]) => {
+  router.push(key);
+};
+</script>
+
+<style lang="scss" module>
+.mainApp {
+  height: 100%;
+}
+</style>
