@@ -4,7 +4,8 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
-	"github.com/maldan/go-cmhp/cmhp_crypto"
+	"github.com/maldan/go-cmhp/cmhp_hash"
+	"github.com/maldan/go-rapi/rapi_test"
 	"reflect"
 	"regexp"
 	"strings"
@@ -57,6 +58,7 @@ var PanelPage string
 var PanelJs string
 var PanelCss string
 var Host string
+var TestList []rapi_test.TestCase
 
 func GetInput(method *Method, name string, arg interface{}) *MethodInput {
 	argValue := reflect.ValueOf(arg).Elem()
@@ -115,6 +117,10 @@ func (r DebugPanelApi) GetCss(ctx *rapi_core.Context) {
 	ctx.IsSkipProcessing = true
 	ctx.RW.Header().Set("Content-Type", "text/css")
 	ctx.RW.Write([]byte(PanelCss))
+}
+
+func (r DebugApi) GetTestList() []rapi_test.TestCase {
+	return TestList
 }
 
 func (r DebugApi) GetMethodList() []Method {
@@ -314,7 +320,7 @@ func (r DebugApi) GetPostmanCollection(ctx *rapi_core.Context) any {
 	return map[string]any{
 		"info": map[string]any{
 			"name":        ctx.R.Host + " Api",
-			"_postman_id": cmhp_crypto.Sha1(ctx.R.Host),
+			"_postman_id": cmhp_hash.Sha1(ctx.R.Host),
 			"description": fmt.Sprintf("%v Api", ctx.R.Host),
 			"schema":      "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		},

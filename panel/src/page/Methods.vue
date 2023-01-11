@@ -3,19 +3,13 @@
     <!-- Left menu -->
     <el-tabs tab-position="left" class="demo-tabs">
       <el-tab-pane v-for="(controller, k) in controllerList" :label="k">
-        <el-alert
-          style="margin-bottom: 5px"
-          :title="k"
-          type="info"
-          :closable="false"
-        />
-
         <el-table
           @row-click="rowClick"
           :data="controller"
           stripe
           :border="true"
           style="width: 100%"
+          :height="tableHeight"
         >
           <!-- Method tag -->
           <el-table-column label="Method" width="100">
@@ -132,6 +126,12 @@
               )
             "
           />
+          <input
+            v-else
+            :placeholder="x.name"
+            type="text"
+            v-model="methodStore.formData[selectedMethodUid][x.name]"
+          />
         </div>
       </div>
     </el-dialog>
@@ -156,16 +156,19 @@ const controllerList = ref({} as Record<string, any>);
 const selectedMethodUid = ref("");
 const dialogVisible = ref(false);
 const customColorOptions = ref({
-  keyColor: "#be31ec",
+  keyColor: "#af6ed1",
   numberColor: "#77b0fc",
-  stringColor: "#18a70e",
+  stringColor: "#57ab51",
   trueColor: "#ff8080",
   falseColor: "#ff8080",
   nullColor: "#e54b4b",
 });
+const tableHeight = ref(400);
 
 // Hooks
 onMounted(async () => {
+  tableHeight.value = window.innerHeight - 80;
+
   await methodStore.getList();
   for (let i = 0; i < methodStore.items.length; i++) {
     if (!controllerList.value[methodStore.items[i].controller])

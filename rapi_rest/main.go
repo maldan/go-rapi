@@ -135,6 +135,8 @@ func (r ApiHandler) Handle(args rapi_core.HandlerArgs) {
 		})
 	}
 
+	// fmt.Printf("%v\n", params)
+
 	// Call method
 	value := ExecuteMethod(r.Controller[controllerName], args, *method, params)
 

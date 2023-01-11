@@ -65,3 +65,15 @@ func FatalIfError(err error) {
 		})
 	}
 }
+
+func FatalIfOk(ok bool, err Error) {
+	if ok {
+		Fatal(err)
+	}
+}
+
+func FatalIfNotOk(ok bool, err Error) {
+	if !ok {
+		Fatal(err)
+	}
+}

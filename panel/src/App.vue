@@ -8,6 +8,7 @@
     >
       <el-menu-item index="/logs">Logs</el-menu-item>
       <el-menu-item index="/methods">Methods</el-menu-item>
+      <el-menu-item index="/tests">Tests</el-menu-item>
       <el-menu-item index="/settings">Settings</el-menu-item>
     </el-menu>
 
