@@ -42,6 +42,7 @@ import { useTestStore } from "@/store/test";
 import Axios from "axios";
 import formatHighlight from "json-format-highlight";
 import MethodTag from "@/component/MethodTag.vue";
+import { HOST } from "@/const";
 
 // Props
 const props = defineProps<{
@@ -72,11 +73,13 @@ const customColorOptions = ref({
   falseColor: "#ff8080",
   nullColor: "#e54b4b",
 });
+const musor = {} as any;
 
 // Hooks
 onMounted(async () => {
   testStore.setRef(props.id, {
     execute,
+    musor,
   });
 });
 
@@ -87,24 +90,24 @@ async function execute() {
   try {
     let resp = null;
     if (props.httpMethod === "GET") {
-      resp = await Axios.get(`http://127.0.0.1:9124${props.url}`, {
+      resp = await Axios.get(`${HOST}${props.url}`, {
         params: props.args,
       });
     }
     if (props.httpMethod === "DELETE") {
-      resp = await Axios.delete(`http://127.0.0.1:9124${props.url}`, {
+      resp = await Axios.delete(`${HOST}${props.url}`, {
         params: props.args,
       });
     }
 
     if (props.httpMethod === "POST") {
-      resp = await Axios.post(`http://127.0.0.1:9124${props.url}`, props.args);
+      resp = await Axios.post(`${HOST}${props.url}`, props.args);
     }
     if (props.httpMethod === "PATCH") {
-      resp = await Axios.patch(`http://127.0.0.1:9124${props.url}`, props.args);
+      resp = await Axios.patch(`${HOST}${props.url}`, props.args);
     }
     if (props.httpMethod === "PUT") {
-      resp = await Axios.patch(`http://127.0.0.1:9124${props.url}`, props.args);
+      resp = await Axios.patch(`${HOST}${props.url}`, props.args);
     }
 
     if (!resp) {
@@ -132,6 +135,10 @@ function checkConstraints() {
 
     constraintStatus.value[constraint] = eval(constraint) ? "ok" : "error";
     if (!constraintStatus.value[constraint]) return false;
+
+    musor.r1 = response;
+    musor.r2 = statusCode;
+    musor.r3 = args;
   }
 
   return true;

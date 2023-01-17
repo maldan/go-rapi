@@ -2,7 +2,6 @@ package rapi_core
 
 import (
 	"net/http"
-	"time"
 )
 
 type HandlerArgs struct {
@@ -12,6 +11,8 @@ type HandlerArgs struct {
 	RawBody            []byte
 	Context            *Context
 	DisableJsonWrapper bool
+	DebugMode          bool
+	Id                 string
 }
 
 type Context struct {
@@ -31,15 +32,4 @@ type File struct {
 
 type Handler interface {
 	Handle(args HandlerArgs)
-}
-
-type Error struct {
-	Status      bool      `json:"status"`
-	Code        int       `json:"code"`
-	Type        string    `json:"type"`
-	Field       string    `json:"field"`
-	Description string    `json:"description"`
-	File        string    `json:"file"`
-	Line        int       `json:"line"`
-	Created     time.Time `json:"created"`
 }

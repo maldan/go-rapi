@@ -3,6 +3,8 @@ package rapi_rest
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/maldan/go-rapi/rapi_debug"
+	"github.com/maldan/go-rapi/rapi_error"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -21,7 +23,7 @@ type Response struct {
 
 func (r ApiHandler) Handle(args rapi_core.HandlerArgs) {
 	// Handle panic
-	defer rapi_core.HandleError(args.RW, args.R)
+	defer rapi_core.HandleError(args)
 
 	// Disable cors
 	rapi_core.DisableCors(args.RW)
@@ -84,7 +86,7 @@ func (r ApiHandler) Handle(args rapi_core.HandlerArgs) {
 		// Read body
 		bodyBytes, err := ioutil.ReadAll(args.R.Body)
 		if err != nil {
-			rapi_core.Fatal(rapi_core.Error{
+			rapi_error.Fatal(rapi_error.Error{
 				Description: err.Error(),
 			})
 		}
@@ -113,7 +115,7 @@ func (r ApiHandler) Handle(args rapi_core.HandlerArgs) {
 	// Check controller
 	_, ok := r.Controller[controllerName]
 	if !ok {
-		rapi_core.Fatal(rapi_core.Error{
+		rapi_error.Fatal(rapi_error.Error{
 			Code: 404,
 			Description: fmt.Sprintf(
 				"Controller %v not found",
@@ -125,7 +127,7 @@ func (r ApiHandler) Handle(args rapi_core.HandlerArgs) {
 	// Get method
 	method := GetMethod(r.Controller[controllerName], methodName, args.R.Method)
 	if method == nil {
-		rapi_core.Fatal(rapi_core.Error{
+		rapi_error.Fatal(rapi_error.Error{
 			Code: 404,
 			Description: fmt.Sprintf(
 				"Method %v not found in controller %v",
@@ -135,10 +137,29 @@ func (r ApiHandler) Handle(args rapi_core.HandlerArgs) {
 		})
 	}
 
-	// fmt.Printf("%v\n", params)
+	if args.DebugMode {
+		debugParams := make(map[string]any)
+		for k, v := range params {
+			switch v.(type) {
+			case rapi_core.File:
+				debugParams[k] = rapi_core.File{
+					Name: v.(rapi_core.File).Name,
+					Mime: v.(rapi_core.File).Mime,
+					Size: v.(rapi_core.File).Size,
+				}
+			default:
+				debugParams[k] = v
+			}
+		}
+		rapi_debug.Log(args.Id).SetArgs(debugParams)
+	}
 
 	// Call method
 	value := ExecuteMethod(r.Controller[controllerName], args, *method, params)
+
+	if args.DebugMode {
+		rapi_debug.Log(args.Id).SetResponse(value.Interface())
+	}
 
 	// Skip prepare and write
 	if args.Context.IsSkipProcessing {
@@ -164,7 +185,7 @@ func (r ApiHandler) Handle(args rapi_core.HandlerArgs) {
 	data, err := json.Marshal(&res)
 
 	if err != nil {
-		rapi_core.Fatal(rapi_core.Error{
+		rapi_error.Fatal(rapi_error.Error{
 			Description: err.Error(),
 		})
 	}

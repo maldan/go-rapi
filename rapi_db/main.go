@@ -1,18 +1,50 @@
 package rapi_db
 
-import (
-	"fmt"
-	"reflect"
-	"strings"
-	"time"
+type IDataBase interface {
+	GetStruct() any
+	Search(int, int) []any
+	GetById(int) any
+	UpdateById(int, any)
+	DeleteById(int)
+}
 
-	"github.com/maldan/go-cmhp/cmhp_crypto"
-	"github.com/maldan/go-cmhp/cmhp_file"
-	"github.com/maldan/go-cmhp/cmhp_reflect"
-	"github.com/maldan/go-rapi/rapi_core"
-)
+type DataApi struct {
+}
 
-var DbPath string
+var DataAccess map[string]IDataBase
+
+type ArgsSearch struct {
+	Table  string `json:"table"`
+	Id     int    `json:"id"`
+	Offset int    `json:"offset"`
+	Limit  int    `json:"limit"`
+}
+
+func (u DataApi) GetStruct(args ArgsSearch) any {
+	return DataAccess[args.Table].GetStruct()
+}
+
+func (u DataApi) GetTableList() []string {
+	l := make([]string, 0)
+	for k, _ := range DataAccess {
+		l = append(l, k)
+	}
+	return l
+}
+
+func (u DataApi) GetSearch(args ArgsSearch) []any {
+	return DataAccess[args.Table].Search(args.Offset, args.Limit)
+}
+
+func (u DataApi) GetById(args ArgsSearch) any {
+	return DataAccess[args.Table].GetById(args.Id)
+}
+
+func (u DataApi) DeleteById(args ArgsSearch) {
+	DataAccess[args.Table].DeleteById(args.Id)
+}
+
+/*var DbPath string
 
 func Load(id string, v interface{}) {
 	name := strings.ToLower(reflect.TypeOf(v).Elem().Name())
@@ -20,7 +52,7 @@ func Load(id string, v interface{}) {
 		rapi_core.Fatal(rapi_core.Error{
 			Code:        404,
 			Description: fmt.Sprintf("%v with id %v not found", strings.Title(name), id),
-		}) 
+		})
 	}
 	err := cmhp_file.ReadJSON(DbPath+"/"+name+"/"+id+".json", v)
 	if err != nil {
@@ -56,4 +88,4 @@ func Update(id string, v interface{}) {
 			Description: err.Error(),
 		})
 	}
-}
+}*/

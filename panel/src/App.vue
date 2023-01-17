@@ -7,8 +7,10 @@
       @select="handleSelect"
     >
       <el-menu-item index="/logs">Logs</el-menu-item>
+      <el-menu-item index="/requests">Requests</el-menu-item>
       <el-menu-item index="/methods">Methods</el-menu-item>
       <el-menu-item index="/tests">Tests</el-menu-item>
+      <el-menu-item index="/db">DB</el-menu-item>
       <el-menu-item index="/settings">Settings</el-menu-item>
     </el-menu>
 
@@ -18,7 +20,6 @@
 
 <script lang="ts" setup>
 import { RouterView, useRouter } from "vue-router";
-import { ModalView } from "@/gam-lib-ui/vue/component/ui";
 
 const router = useRouter();
 

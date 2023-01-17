@@ -1,9 +1,50 @@
 package rapi_core
 
 import (
+	"encoding/json"
+	"fmt"
+	"github.com/maldan/go-rapi/rapi_debug"
+	"github.com/maldan/go-rapi/rapi_error"
 	"net/http"
+	"runtime"
+	"runtime/debug"
 	"strings"
+	"time"
 )
+
+func HandleError(args HandlerArgs) {
+	args.RW.Header().Add("Content-Type", "application/json")
+
+	if err := recover(); err != nil {
+		switch e := err.(type) {
+		case rapi_error.Error:
+			args.RW.WriteHeader(e.Code)
+			message, _ := json.Marshal(e)
+			args.RW.Write(message)
+			if args.DebugMode {
+				rapi_debug.Log(args.Id).SetError(e)
+			}
+		default:
+			_, file, line, _ := runtime.Caller(3)
+
+			args.RW.WriteHeader(500)
+			fmt.Println(string(debug.Stack()))
+			ee := rapi_error.Error{
+				Code:        500,
+				Type:        "unknown",
+				Description: fmt.Sprintf("%v", e),
+				Line:        line,
+				File:        file,
+				Created:     time.Now(),
+			}
+			message, _ := json.Marshal(ee)
+			args.RW.Write(message)
+			if args.DebugMode {
+				rapi_debug.Log(args.Id).SetError(ee)
+			}
+		}
+	}
+}
 
 func GetHandler(url string, routers map[string]Handler) (string, Handler) {
 	var most string

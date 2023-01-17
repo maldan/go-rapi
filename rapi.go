@@ -2,7 +2,10 @@ package rapi
 
 import (
 	_ "embed"
+	"github.com/maldan/go-cmhp/cmhp_crypto"
 	"github.com/maldan/go-rapi/rapi_core"
+	"github.com/maldan/go-rapi/rapi_db"
+	"github.com/maldan/go-rapi/rapi_debug"
 	"github.com/maldan/go-rapi/rapi_doc"
 	"github.com/maldan/go-rapi/rapi_log"
 	"github.com/maldan/go-rapi/rapi_rest"
@@ -39,6 +42,8 @@ type Config struct {
 	DisableJsonWrapper bool
 	Rewrite            []RewriteUrl
 	TestList           []rapi_test.TestCase
+	DataAccess         map[string]rapi_db.IDataBase
+	DebugMode          bool
 }
 
 type Rewrite struct {
@@ -50,7 +55,7 @@ type Rewrite struct {
 // var redirectRegExpMap = map[*regexp.Regexp]string{}
 var redirectList = make([]Rewrite, 0)
 
-func HandleRewrite(url *url.URL, httpMethod string) {
+func HandleRewrite(httpMethod string, url *url.URL) {
 	for _, r := range redirectList {
 		if !strings.Contains(r.HttpMethod, httpMethod) {
 			continue
@@ -99,6 +104,7 @@ func Start(config Config) {
 			"api":   rapi_doc.DebugApi{},
 			"log":   rapi_log.LogApi{},
 			"panel": rapi_doc.DebugPanelApi{},
+			"data":  rapi_db.DataApi{},
 		},
 	}
 
@@ -121,17 +127,28 @@ func Start(config Config) {
 		rapi_doc.Host = config.Host
 	}
 	rapi_doc.TestList = config.TestList
+	rapi_db.DataAccess = config.DataAccess
 
 	rapi_log.Info("Start RApi server %v", config.Host)
 	rapi_log.Info("Disable json wrapper %v", config.DisableJsonWrapper)
 	rapi_log.Info("Debug host %v", rapi_doc.Host)
+	rapi_log.Info("Debug mode %v", config.DebugMode)
 
 	// Entry point
 	http.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
-		// fmt.Printf("%v %v\n", r.URL, r.Method)
+		id := cmhp_crypto.UID(16)
+		debugMode := config.DebugMode
+
+		if strings.HasPrefix(r.URL.Path, "/debug/") {
+			debugMode = false
+		}
+
+		if debugMode {
+			rapi_debug.Log(id).SetRequest(r.Method, r.URL.Path)
+		}
 
 		// Redirect handler
-		HandleRewrite(r.URL, r.Method)
+		HandleRewrite(r.Method, r.URL)
 
 		route, handler := rapi_core.GetHandler(r.URL.Path, config.Router)
 		if handler == nil {
@@ -144,6 +161,8 @@ func Start(config Config) {
 			RW:                 rw,
 			R:                  r,
 			DisableJsonWrapper: config.DisableJsonWrapper,
+			DebugMode:          debugMode,
+			Id:                 id,
 		})
 	})
 

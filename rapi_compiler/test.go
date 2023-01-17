@@ -1,18 +1,6 @@
 package rapi_compiler
 
-import (
-	"encoding/json"
-	"fmt"
-	"github.com/maldan/go-cmhp/cmhp_convert"
-	"github.com/maldan/go-cmhp/cmhp_file"
-	"github.com/maldan/go-cmhp/cmhp_string"
-	"github.com/maldan/go-rapi/rapi_test"
-	"regexp"
-	"sort"
-	"strings"
-)
-
-func getTestCase(input string) rapi_test.RapiTestCase {
+/*func getTestCase(input string) rapi_test.RapiTestCase {
 	testCase := rapi_test.RapiTestCase{
 		MustStatus: 200,
 	}
@@ -210,8 +198,8 @@ func CompileTests(apiDir string, outPath string) {
 				json.Unmarshal([]byte(%v), &save)
 
 				rt.BigTest(rapi_test.RapiTestCase{
-					HttpMethod: "%v", 
-					Url: "%v", 
+					HttpMethod: "%v",
+					Url: "%v",
 					MustStatus: %v,
 					AccessTokenFrom: "%v",
 					ResponseFields: []string{%v},
@@ -245,3 +233,4 @@ func CompileTests(apiDir string, outPath string) {
 
 	cmhp_file.Write(outPath, finalOut)
 }
+*/

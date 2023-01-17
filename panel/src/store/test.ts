@@ -42,9 +42,7 @@ export const useTestStore = defineStore({
     } as TestState),
   actions: {
     async getList() {
-      this.list = (
-        await Axios.get(`http://127.0.0.1:9124/debug/api/testList`)
-      ).data;
+      this.list = (await Axios.get(`${HOST}/debug/api/testList`)).data;
       for (let i = 0; i < this.list.length; i++) {
         if (!this.list[i].blockList) this.list[i].blockList = [];
         if (!this.list[i].connectionList) this.list[i].connectionList = [];

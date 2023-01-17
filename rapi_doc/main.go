@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/maldan/go-cmhp/cmhp_hash"
+	"github.com/maldan/go-cmhp/cmhp_slice"
+	"github.com/maldan/go-rapi/rapi_debug"
 	"github.com/maldan/go-rapi/rapi_test"
 	"reflect"
 	"regexp"
@@ -51,6 +53,11 @@ type Method struct {
 
 type ArgsPostmanCollection struct {
 	IsHttps bool `json:"isHttps"`
+}
+
+type ArgsRequestListOffset struct {
+	Offset int `json:"offset"`
+	Limit  int `json:"limit"`
 }
 
 var Router map[string]rapi_core.Handler
@@ -121,6 +128,10 @@ func (r DebugPanelApi) GetCss(ctx *rapi_core.Context) {
 
 func (r DebugApi) GetTestList() []rapi_test.TestCase {
 	return TestList
+}
+
+func (r DebugApi) GetRequestList(args ArgsRequestListOffset) []*rapi_debug.RapiDebugLog {
+	return cmhp_slice.Paginate(rapi_debug.LogList, args.Offset, args.Limit)
 }
 
 func (r DebugApi) GetMethodList() []Method {

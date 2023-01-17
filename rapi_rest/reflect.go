@@ -2,6 +2,7 @@ package rapi_rest
 
 import (
 	"fmt"
+	"github.com/maldan/go-rapi/rapi_error"
 	"reflect"
 	"strings"
 
@@ -23,7 +24,7 @@ func ValidateFieldList(s *reflect.Value, ss reflect.Type) {
 			if field.CanSet() {
 
 				if isRequired && field.IsZero() {
-					rapi_core.Fatal(rapi_core.Error{
+					rapi_error.Fatal(rapi_error.Error{
 						Type:  "emptyField",
 						Field: cmhp_string.LowerFirst(fieldName),
 						Description: fmt.Sprintf(

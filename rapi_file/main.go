@@ -14,13 +14,13 @@ type FileHandler struct {
 
 func (r FileHandler) Handle(args rapi_core.HandlerArgs) {
 	// Handle panic
-	defer rapi_core.HandleError(args.RW, args.R)
+	defer rapi_core.HandleError(args)
 
 	cwd, _ := os.Getwd()
 
 	// Pure path without route // example /data/test -> /test
 	routePath := strings.Replace(args.R.URL.Path, args.Route, "", 1)
-	
+
 	path := strings.ReplaceAll(r.Root, "@", cwd) + routePath
 	path = strings.ReplaceAll(path, "\\", "/")
 
