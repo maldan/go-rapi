@@ -52,6 +52,8 @@ func FillFieldList(s *reflect.Value, ss reflect.Type, params map[string]interfac
 		fieldTag := ss.Field(i).Tag
 		jsonName := fieldTag.Get("json")
 
+		// fmt.Printf("%v\n", fieldName)
+
 		// Can change field
 		if field.IsValid() {
 			if field.CanSet() {

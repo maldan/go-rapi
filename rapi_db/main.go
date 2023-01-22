@@ -1,27 +1,51 @@
 package rapi_db
 
-type IDataBase interface {
-	GetStruct() any
-	Search(int, int) []any
-	GetById(int) any
-	UpdateById(int, any)
-	DeleteById(int)
-}
+import (
+	"github.com/Knetic/govaluate"
+	"github.com/maldan/go-cmhp/cmhp_convert"
+	"github.com/maldan/go-cmhp/cmhp_slice"
+	"github.com/maldan/go-rapi/rapi_error"
+)
 
-type DataApi struct {
+type SearchResult[T any] struct {
+	Count  int `json:"count"`
+	Total  int `json:"total"`
+	Page   int `json:"page"`
+	Result []T `json:"result"`
 }
 
 var DataAccess map[string]IDataBase
 
 type ArgsSearch struct {
 	Table  string `json:"table"`
+	Filter string `json:"filter"`
 	Id     int    `json:"id"`
 	Offset int    `json:"offset"`
 	Limit  int    `json:"limit"`
 }
 
-func (u DataApi) GetStruct(args ArgsSearch) any {
-	return DataAccess[args.Table].GetStruct()
+type ArgsUpdate struct {
+	Table string `json:"table"`
+	Id    int    `json:"id"`
+	Data  string `json:"data"`
+}
+
+type DataApi struct {
+}
+
+func FilterByExpression[T any](slice []T, expr string, filter func(t *T) map[string]any) []T {
+	expression, err := govaluate.NewEvaluableExpression(expr)
+	rapi_error.FatalIfError(err)
+
+	return cmhp_slice.Filter(slice, func(v *T) bool {
+		m := filter(v)
+		result, _ := expression.Evaluate(m)
+		return result.(bool)
+	})
+}
+
+func (u DataApi) GetSettings(args ArgsSearch) any {
+	return DataAccess[args.Table].GetSettings()
 }
 
 func (u DataApi) GetTableList() []string {
@@ -32,8 +56,9 @@ func (u DataApi) GetTableList() []string {
 	return l
 }
 
-func (u DataApi) GetSearch(args ArgsSearch) []any {
-	return DataAccess[args.Table].Search(args.Offset, args.Limit)
+func (u DataApi) GetSearch(args ArgsSearch) SearchResult[any] {
+	f := cmhp_convert.FromBase64(args.Filter)
+	return DataAccess[args.Table].Search(string(f), args.Offset, args.Limit)
 }
 
 func (u DataApi) GetById(args ArgsSearch) any {
@@ -44,48 +69,6 @@ func (u DataApi) DeleteById(args ArgsSearch) {
 	DataAccess[args.Table].DeleteById(args.Id)
 }
 
-/*var DbPath string
-
-func Load(id string, v interface{}) {
-	name := strings.ToLower(reflect.TypeOf(v).Elem().Name())
-	if !cmhp_file.Exists(DbPath + "/" + name + "/" + id + ".json") {
-		rapi_core.Fatal(rapi_core.Error{
-			Code:        404,
-			Description: fmt.Sprintf("%v with id %v not found", strings.Title(name), id),
-		})
-	}
-	err := cmhp_file.ReadJSON(DbPath+"/"+name+"/"+id+".json", v)
-	if err != nil {
-		rapi_core.Fatal(rapi_core.Error{
-			Description: err.Error(),
-		})
-	}
+func (u DataApi) PostById(args ArgsUpdate) {
+	DataAccess[args.Table].UpdateById(args.Id, args.Data)
 }
-
-func Save(v interface{}) {
-	name := strings.ToLower(reflect.TypeOf(v).Elem().Name())
-	id := cmhp_crypto.UID(10)
-
-	cmhp_reflect.SetField(v, "Id", id)
-	cmhp_reflect.SetField(v, "Created", time.Now())
-
-	// Save to file
-	err := cmhp_file.Write(DbPath+"/"+name+"/"+id+".json", v)
-	if err != nil {
-		rapi_core.Fatal(rapi_core.Error{
-			Description: err.Error(),
-		})
-	}
-}
-
-func Update(id string, v interface{}) {
-	name := strings.ToLower(reflect.TypeOf(v).Elem().Name())
-
-	// Save to file
-	err := cmhp_file.Write(DbPath+"/"+name+"/"+id+".json", v)
-	if err != nil {
-		rapi_core.Fatal(rapi_core.Error{
-			Description: err.Error(),
-		})
-	}
-}*/

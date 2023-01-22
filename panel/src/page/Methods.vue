@@ -61,33 +61,43 @@
     </el-tabs>
 
     <!-- Response -->
-    <div :class="$style.response" style="">
-      <div :class="$style.header">
-        <div>{{ selectedMethodUid }}</div>
-        <div style="margin-left: 15px">
-          Status: {{ methodStore.responseInfo[selectedMethodUid]?.status }}
-        </div>
-        <div style="margin-left: 15px">
-          Time: {{ methodStore.responseInfo[selectedMethodUid]?.time }} ms
-        </div>
+    <div :class="$style.right">
+      <div :class="$style.input">
+        <el-input
+          type="textarea"
+          :autosize="true"
+          v-model="methodStore.params[selectedMethodUid]"
+        />
       </div>
 
-      <pre
-        style="
-          overflow-y: auto;
-          height: calc(100% - 100px);
-          background: #262626;
-          padding: 10px;
-          box-sizing: border-box;
-          word-break: break-all;
-        "
-        v-html="
-          formatHighlight(
-            methodStore.response[selectedMethodUid] || {},
-            customColorOptions
-          )
-        "
-      ></pre>
+      <div :class="$style.response" style="">
+        <div :class="$style.header">
+          <div>{{ selectedMethodUid }}</div>
+          <div style="margin-left: 15px">
+            Status: {{ methodStore.responseInfo[selectedMethodUid]?.status }}
+          </div>
+          <div style="margin-left: 15px">
+            Time: {{ methodStore.responseInfo[selectedMethodUid]?.time }} ms
+          </div>
+        </div>
+
+        <pre
+          style="
+            overflow-y: auto;
+            height: calc(100% - 100px);
+            background: #262626;
+            padding: 10px;
+            box-sizing: border-box;
+            word-break: break-all;
+          "
+          v-html="
+            formatHighlight(
+              methodStore.response[selectedMethodUid] || {},
+              customColorOptions
+            )
+          "
+        ></pre>
+      </div>
     </div>
 
     <!-- Method params -->
@@ -223,6 +233,10 @@ function fileSelect(e: any, name: string, destination: any) {
   padding: 10px;
   display: grid;
   grid-template-columns: 1fr 0.5fr;
+
+  .input {
+    padding: 10px;
+  }
 
   .response {
     padding: 10px;

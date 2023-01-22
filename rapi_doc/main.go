@@ -87,11 +87,13 @@ func GetInput(method *Method, name string, arg interface{}) *MethodInput {
 		// Go over fields
 		amount := argValue.NumField()
 		for i := 0; i < amount; i++ {
+
 			m.FieldList = append(
 				m.FieldList,
 				GetInput(
 					method,
-					cmhp_string.LowerFirst(argType.Field(i).Name),
+					argType.Field(i).Tag.Get("json"),
+					//cmhp_string.LowerFirst(argType.Field(i).Name),
 					reflect.New(argValue.Field(i).Type()).Interface(),
 				),
 			)
@@ -127,6 +129,9 @@ func (r DebugPanelApi) GetCss(ctx *rapi_core.Context) {
 }
 
 func (r DebugApi) GetTestList() []rapi_test.TestCase {
+	if len(TestList) == 0 {
+		return make([]rapi_test.TestCase, 0)
+	}
 	return TestList
 }
 

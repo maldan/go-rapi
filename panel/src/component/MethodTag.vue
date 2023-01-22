@@ -5,13 +5,16 @@
 
     <!-- Post -->
     <el-tag
-      v-else-if="
-        props.tag === 'POST' || props.tag === 'PATCH' || props.tag === 'PUT'
-      "
+      v-else-if="props.tag === 'POST' || props.tag === 'PUT'"
       effect="dark"
       type="warning"
       >{{ tag }}</el-tag
     >
+
+    <!-- Post -->
+    <el-tag v-else-if="props.tag === 'PATCH'" effect="dark" type="success">{{
+      tag
+    }}</el-tag>
 
     <!-- Delete -->
     <el-tag v-else-if="props.tag === 'DELETE'" effect="dark" type="danger">{{

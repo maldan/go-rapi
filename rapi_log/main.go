@@ -59,7 +59,7 @@ func (r LogApi) GetSearch(args ArgsSearch) []LogData {
 		from := time.Date(args.Date.Year(), args.Date.Month(), args.Date.Day(), 0, 0, 0, 0, args.Date.Location())
 		to := time.Date(args.Date.Year(), args.Date.Month(), args.Date.Day(), 23, 59, 59, 0, args.Date.Location())
 
-		nLogs = cmhp_slice.Filter(logList, func(t LogData) bool {
+		nLogs = cmhp_slice.Filter(logList, func(t *LogData) bool {
 			return t.Time.Unix() >= from.Unix() && t.Time.Unix() <= to.Unix()
 		})
 	}

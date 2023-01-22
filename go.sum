@@ -1,2 +1,2 @@
-github.com/maldan/go-cmhp v0.0.26 h1:6Nx4N068GELTwyunaQibWaxfCpXwbvzES/jzFygaWJs=
-github.com/maldan/go-cmhp v0.0.26/go.mod h1:Bl9pnc2ehtgd84ieaYE+/YlBg2sZ8nSUuzd9usbpqkE=
+github.com/Knetic/govaluate v3.0.0+incompatible h1:7o6+MAPhYTCF0+fdvoz1xDedhRb4f6s9Tn1Tt7/WTEg=
+github.com/Knetic/govaluate v3.0.0+incompatible/go.mod h1:r7JcOSlj0wfOMncg0iLm8Leh48TZaKVeNIfJntJ2wa0=

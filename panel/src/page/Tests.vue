@@ -1,24 +1,10 @@
 <template>
   <div :class="$style.main">
-    <el-button
-      @click="tag = x"
-      v-for="x in tags"
-      :type="x === tag ? 'primary' : ''"
-      :key="x"
-      >{{ x }}</el-button
-    >
+    <el-button @click="tag = x" v-for="x in tags" :type="x === tag ? 'primary' : ''" :key="x">{{ x }}</el-button>
 
     <div :class="$style.caseList" style="margin-top: 10px" v-if="tag">
-      <div
-        v-for="testCase in testCaseList"
-        :key="testCase.name"
-        :class="$style.case"
-      >
-        <el-button
-          @click="testStore.runCase(testCase.tag, testCase.name)"
-          style="margin-bottom: 10px"
-          >Run</el-button
-        >
+      <div v-for="testCase in testCaseList" :key="testCase.name" :class="$style.case">
+        <el-button @click="testStore.runCase(testCase.tag, testCase.name)" style="margin-bottom: 10px">Run</el-button>
         <div :class="$style.list">
           <component
             v-for="x in testCase.blockList"
@@ -39,13 +25,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, onMounted, ref } from "vue";
-import type { IMethod } from "@/store/method";
-import { useMethodStore } from "@/store/method";
-import { useModalStore } from "@/gam-lib-ui/vue/store/modal";
-import RequestBlock from "@/component/test/RequestBlock.vue";
-import CaptureBlock from "@/component/test/CaptureBlock.vue";
-import { useTestStore } from "@/store/test";
+import { computed, h, onMounted, ref } from 'vue';
+import type { IMethod } from '@/store/method';
+import { useMethodStore } from '@/store/method';
+import { useModalStore } from '@/gam-lib-ui/vue/store/modal';
+import RequestBlock from '@/component/test/RequestBlock.vue';
+import CaptureBlock from '@/component/test/CaptureBlock.vue';
+import { useTestStore } from '@/store/test';
 
 // Stores
 const methodStore = useMethodStore();
@@ -60,7 +46,7 @@ const tags = computed(() => {
 const testCaseList = computed(() => {
   return testStore.list.filter((x) => x.tag === tag.value);
 });
-const tag = ref("");
+const tag = ref('');
 
 // Hooks
 onMounted(async () => {

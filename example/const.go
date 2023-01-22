@@ -4,6 +4,9 @@ type User struct {
 	Id       int    `json:"id"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+	Balance  int    `json:"balance"`
+	Gay      bool   `json:"gay"`
+	Lox      bool   `json:"lox"`
 }
 
 type TemplateBlock struct {
@@ -21,5 +24,5 @@ type TemplateHeader struct {
 type Template struct {
 	Id        int             `json:"id"`
 	Header    TemplateHeader  `json:"header"`
-	BlockList []TemplateBlock `json:"blockList"`
+	BlockList []TemplateBlock `json:"block_list"`
 }

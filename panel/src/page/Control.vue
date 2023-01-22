@@ -1,11 +1,9 @@
 <template>
   <div :class="$style.main" style="padding: 10px">
-    <div>Access token</div>
-    <el-input
-      placeholder="Access token"
-      @change="onSave"
-      v-model="accessToken"
-    ></el-input>
+    <!-- Left menu -->
+    <el-tabs tab-position="left" class="demo-tabs">
+      <el-tab-pane v-for="v in tabs" :label="v"> {{ v }} </el-tab-pane>
+    </el-tabs>
   </div>
 </template>
 
@@ -19,22 +17,18 @@ const methodStore = useMethodStore();
 const modalStore = useModalStore();
 
 // Vars
-const accessToken = ref("");
+const tabs = ["backup", "push", "mail"];
 
 // Hooks
-onMounted(async () => {
-  accessToken.value = localStorage.getItem("debug__accessToken") || "";
-});
+onMounted(async () => {});
 
 // Methods
-function onSave() {
-  localStorage.setItem("debug__accessToken", accessToken.value);
-}
 </script>
 
 <style module lang="scss">
 .main {
   display: flex;
   flex-direction: column;
+  font-size: 14px;
 }
 </style>

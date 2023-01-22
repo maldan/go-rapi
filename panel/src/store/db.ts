@@ -1,49 +1,101 @@
 import { defineStore } from "pinia";
 import Axios from "axios";
 import { HOST } from "@/const";
+import { escape } from "lodash";
 
-export type DbState = {
+export interface DbState {
   tableList: string[];
-  struct: Record<string, string>;
   table: string;
-  list: any[];
+  search: {
+    total: number;
+    count: number;
+    page: number;
+    result: any[];
+  };
+  settings: {
+    isEditable: boolean;
+    isDeletable: boolean;
+    fieldList: {
+      name: string;
+      isEdit: boolean;
+      isHide: boolean;
+      Type: string;
+    }[];
+  };
+  filter: string;
   offset: number;
   limit: number;
-};
+  error: string;
+}
 
 export const useDbStore = defineStore({
   id: "db",
   state: () =>
     ({
       tableList: [],
-      struct: {},
+      settings: {
+        isEditable: false,
+        isDeletable: false,
+        fieldList: [],
+        editFieldList: [],
+      },
       table: "",
-      list: [],
+      search: {
+        result: [],
+        total: 0,
+        page: 0,
+        count: 0,
+      },
+      filter: "",
       offset: 0,
       limit: 20,
+      error: "",
     } as DbState),
   actions: {
     async getTableList() {
       this.tableList = (await Axios.get(`${HOST}/debug/data/tableList`)).data;
     },
-    async getStruct() {
-      this.struct = (
-        await Axios.get(`${HOST}/debug/data/struct?table=${this.table}`)
+    async getSettings() {
+      this.settings = (
+        await Axios.get(`${HOST}/debug/data/settings?table=${this.table}`)
+      ).data;
+    },
+    async getById(id: number) {
+      return (
+        await Axios.get(`${HOST}/debug/data/byId?table=${this.table}&id=${id}`)
+      ).data;
+    },
+    async update(id: number, value: any) {
+      return (
+        await Axios.post(
+          `${HOST}/debug/data/byId?table=${this.table}&id=${id}`,
+          {
+            data: JSON.stringify(value),
+          }
+        )
       ).data;
     },
     async getSearch() {
-      this.list = (
-        await Axios.get(
-          `${HOST}/debug/data/search?table=${this.table}&offset=${this.offset}&limit=${this.limit}`
-        )
-      ).data;
+      this.error = "";
+      this.search.result = [];
+
+      try {
+        this.search = (
+          await Axios.get(
+            `${HOST}/debug/data/search?table=${this.table}&filter=${btoa(
+              this.filter
+            )}&offset=${this.offset}&limit=${this.limit}`
+          )
+        ).data;
+      } catch (e: any) {
+        this.error = e.response.data.description;
+        this.search.total = 0;
+      }
     },
     async deleteById(id: string) {
-      this.list = (
-        await Axios.delete(
-          `${HOST}/debug/data/byId?table=${this.table}&id=${id}`
-        )
-      ).data;
+      await Axios.delete(
+        `${HOST}/debug/data/byId?table=${this.table}&id=${id}`
+      );
     },
   },
 });

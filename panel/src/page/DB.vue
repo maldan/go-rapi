@@ -10,70 +10,147 @@
       >
     </div>
 
+    <!-- Pagination -->
+    <el-pagination
+      background
+      layout="prev, pager, next"
+      :total="dbStore.search.total"
+      :page-size="dbStore.limit"
+      style="margin-bottom: 10px; width: 100%"
+      @current-change="changePage"
+    />
+
+    <el-input placeholder="Filter..." @change="refresh" v-model="dbStore.filter" style="margin-bottom: 10px" />
+
+    <!-- Data -->
     <el-table
-      :data="dbStore.list"
+      :data="dbStore.search.result"
       stripe
       :border="true"
       style="width: 100%"
       :height="tableHeight"
+      :empty-text="dbStore.error"
     >
-      <el-table-column v-for="(v, k) in dbStore.struct" :prop="k" :label="k" />
+      <!--      <el-table-column
+        v-for="v in dbStore.settings.fieldList.filter((x) => !x.isHide)"
+        :prop="v.name"
+        :label="v.name"
+      />-->
+
+      <!-- Custom -->
+      <el-table-column v-for="v in dbStore.settings.fieldList.filter((x) => !x.isHide)" :label="v.name">
+        <template #default="scope">
+          <div v-if="v.type === 'bool'">
+            <el-checkbox size="large" :model-value="scope.row[v.name]" />
+          </div>
+          <div v-else>{{ scope.row[v.name] }}</div>
+        </template>
+      </el-table-column>
 
       <!-- Edit -->
-      <el-table-column label="Edit" width="70">
+      <el-table-column v-if="dbStore.settings.isEditable" label="Edit" width="70">
         <template #default="scope">
           <el-button @click="editById(scope.row.id)" style="width: 100%"
-            >Ed</el-button
-          >
+            ><el-icon><EditPen /></el-icon
+          ></el-button>
         </template>
       </el-table-column>
 
       <!-- Delete -->
-      <el-table-column label="Delete" width="70">
+      <el-table-column v-if="dbStore.settings.isDeletable" label="Delete" width="70">
         <template #default="scope">
           <el-button @click="deleteById(scope.row.id)" style="width: 100%"
-            >x</el-button
-          >
+            ><el-icon><DeleteFilled /></el-icon
+          ></el-button>
         </template>
       </el-table-column>
     </el-table>
+
+    <!-- Modal Edit -->
+    <el-dialog v-model="dialogVisible" title="Edit" width="30%" draggable>
+      <div v-for="v in dbStore.settings.fieldList" :key="v.name" style="margin-bottom: 10px">
+        <div style="margin-bottom: 5px">{{ v.name }}</div>
+
+        <!-- Type -->
+        <el-input v-if="!v.isEdit" :disabled="!v.isEdit" :placeholder="v.name" v-model="tempRow[v.name]" />
+        <el-input v-if="v.isEdit && v.type === 'string'" :placeholder="v.name" v-model="tempRow[v.name]" />
+        <el-input-number
+          v-if="v.isEdit && v.type === 'int'"
+          :placeholder="v.name"
+          v-model="tempRow[v.name]"
+          style="width: 100%"
+        />
+        <el-checkbox v-if="v.isEdit && v.type === 'bool'" :placeholder="v.name" v-model="tempRow[v.name]" />
+      </div>
+
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button type="primary" @click="save"> Save </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, h, onMounted, ref } from "vue";
-import { useDbStore } from "@/store/db";
+import { computed, h, onMounted, ref } from 'vue';
+import { useDbStore } from '@/store/db';
 
 // Stores
 const dbStore = useDbStore();
 
 // Vars
-const offset = ref("0");
+const offset = ref('0');
 const tableHeight = ref(400);
+const editId = ref(0);
+const dialogVisible = ref(false);
+const tempRow = ref({});
 
 // Hooks
 onMounted(async () => {
-  tableHeight.value = window.innerHeight - 120;
+  tableHeight.value = window.innerHeight - 205;
 
   await dbStore.getTableList();
   dbStore.table = dbStore.tableList[0];
-  await dbStore.getStruct();
+  await dbStore.getSettings();
   await dbStore.getSearch();
 });
 
 // Methods
-async function deleteById(id: string) {
-  await dbStore.deleteById(id);
+async function refresh() {
   await dbStore.getSearch();
 }
 
-async function editById(id: string) {}
+async function deleteById(id: string) {
+  if (confirm('Sure?')) {
+    await dbStore.deleteById(id);
+    await dbStore.getSearch();
+  }
+}
+
+async function editById(id: number) {
+  editId.value = id;
+  dialogVisible.value = true;
+  tempRow.value = await dbStore.getById(id);
+}
 
 async function changeTab(tab: string) {
   dbStore.table = tab;
-  dbStore.list = [];
-  await dbStore.getStruct();
+  dbStore.search.result = [];
+  await dbStore.getSettings();
   await dbStore.getSearch();
+}
+
+async function changePage(page: number) {
+  dbStore.offset = (page - 1) * dbStore.limit;
+  dbStore.search.result = [];
+  await dbStore.getSearch();
+}
+
+async function save() {
+  await dbStore.update(editId.value, tempRow.value);
+  await dbStore.getSearch();
+  dialogVisible.value = false;
 }
 </script>
 

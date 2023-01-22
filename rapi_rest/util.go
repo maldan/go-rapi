@@ -61,7 +61,7 @@ func ApplyBool(field *reflect.Value, v interface{}) {
 }
 
 func ApplySlice(field *reflect.Value, v interface{}) {
-	len := reflect.ValueOf(v).Len()
+	length := reflect.ValueOf(v).Len()
 	kind := reflect.ValueOf(field)
 
 	// Raw message
@@ -76,7 +76,7 @@ func ApplySlice(field *reflect.Value, v interface{}) {
 	// Bytes
 	if fmt.Sprintf("%v", kind) == "<[]uint8 Value>" {
 		slice := make([]byte, 0)
-		for i := 0; i < len; i++ {
+		for i := 0; i < length; i++ {
 			slice = append(slice, reflect.ValueOf(v).Index(i).Interface().(byte))
 		}
 		field.Set(reflect.ValueOf(slice))
@@ -86,7 +86,7 @@ func ApplySlice(field *reflect.Value, v interface{}) {
 	// Bytes
 	if fmt.Sprintf("%v", kind) == "<[][]uint8 Value>" {
 		slice := make([][]byte, 0)
-		for i := 0; i < len; i++ {
+		for i := 0; i < length; i++ {
 			slice = append(slice, reflect.ValueOf(v).Index(i).Interface().([]byte))
 		}
 		field.Set(reflect.ValueOf(slice))
@@ -94,9 +94,9 @@ func ApplySlice(field *reflect.Value, v interface{}) {
 	}
 
 	// Fill other slice
-	slice := reflect.MakeSlice(field.Type(), len, len)
+	slice := reflect.MakeSlice(field.Type(), length, length)
 
-	for i := 0; i < len; i++ {
+	for i := 0; i < length; i++ {
 		index := slice.Index(i)
 		// fmt.Printf("%v\n", )
 
@@ -105,8 +105,10 @@ func ApplySlice(field *reflect.Value, v interface{}) {
 			//elem := reflect.ValueOf(reflect.ValueOf(v).Index(i).Elem())
 			val := reflect.ValueOf(v).Index(i).Interface().(map[string]interface{})
 
-			/*fmt.Printf("%v\n", index.Type())
-			fmt.Printf("%v\n", elem)*/
+			//fmt.Printf("%v\n", index.Type())
+			//fmt.Printf("%v\n", &index)
+			//fmt.Printf("%v\n", val)
+
 			FillFieldList(
 				&index,
 				index.Type(),

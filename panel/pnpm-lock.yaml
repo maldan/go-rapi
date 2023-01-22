@@ -1,6 +1,7 @@
 lockfileVersion: 5.3
 
 specifiers:
+  '@element-plus/icons-vue': ^2.0.10
   '@rushstack/eslint-patch': ^1.1.0
   '@types/lodash': ^4.14.182
   '@types/node': ^16.11.36
@@ -27,6 +28,7 @@ specifiers:
   vue-tsc: ^0.35.2
 
 dependencies:
+  '@element-plus/icons-vue': 2.0.10_vue@3.2.45
   '@types/lodash': 4.14.182
   axios: 0.27.2
   dayjs: 1.11.3
