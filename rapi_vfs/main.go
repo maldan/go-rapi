@@ -20,7 +20,7 @@ type VFSHandler struct {
 
 func (r VFSHandler) Handle(args rapi_core.HandlerArgs) {
 	// Handle panic
-	defer rapi_core.HandleError(args)
+	defer rapi_core.HandleError(&args)
 
 	// Prepare path
 	pathWithoutKey := strings.Replace(args.R.URL.Path, args.Route, "", 1)
