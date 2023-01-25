@@ -13,6 +13,7 @@ type HandlerArgs struct {
 	DisableJsonWrapper bool
 	DebugMode          bool
 	Id                 string
+	MethodArgs         map[string]any
 }
 
 type Context struct {

@@ -11,18 +11,30 @@ type RapiDebugLog struct {
 	HttpMethod string           `json:"httpMethod"`
 	Url        string           `json:"url"`
 	Args       map[string]any   `json:"args"`
+	Body       string           `json:"body"`
 	Response   any              `json:"response"`
+	RemoteAddr string           `json:"remoteAddr"`
 	Error      rapi_error.Error `json:"error"`
 	Created    time.Time        `json:"created"`
 }
 
-func (l *RapiDebugLog) SetRequest(method string, url string) {
+func (l *RapiDebugLog) SetRequest(method string, url string) *RapiDebugLog {
 	l.HttpMethod = method
 	l.Url = url
+	return l
+}
+
+func (l *RapiDebugLog) SetRemoteAddr(addr string) *RapiDebugLog {
+	l.RemoteAddr = addr
+	return l
 }
 
 func (l *RapiDebugLog) SetArgs(args map[string]any) {
 	l.Args = args
+}
+
+func (l *RapiDebugLog) SetBody(body string) {
+	l.Body = body
 }
 
 func (l *RapiDebugLog) SetResponse(response any) {

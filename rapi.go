@@ -4,10 +4,10 @@ import (
 	_ "embed"
 	"github.com/maldan/go-cmhp/cmhp_crypto"
 	"github.com/maldan/go-rapi/rapi_core"
-	"github.com/maldan/go-rapi/rapi_db"
 	"github.com/maldan/go-rapi/rapi_debug"
 	"github.com/maldan/go-rapi/rapi_doc"
 	"github.com/maldan/go-rapi/rapi_log"
+	"github.com/maldan/go-rapi/rapi_panel"
 	"github.com/maldan/go-rapi/rapi_rest"
 	"github.com/maldan/go-rapi/rapi_test"
 	"log"
@@ -42,8 +42,9 @@ type Config struct {
 	DisableJsonWrapper bool
 	Rewrite            []RewriteUrl
 	TestList           []rapi_test.TestCase
-	DataAccess         map[string]rapi_db.IDataBase
-	DebugMode          bool
+	// DataAccess         map[string]map[string]func(rapi_panel.DataArgs) any
+	PanelConfig rapi_panel.PanelConfig
+	DebugMode   bool
 }
 
 type Rewrite struct {
@@ -101,10 +102,11 @@ func Start(config Config) {
 	// Set debug api
 	config.Router["/debug"] = rapi_rest.ApiHandler{
 		Controller: map[string]interface{}{
-			"api":   rapi_doc.DebugApi{},
-			"log":   rapi_log.LogApi{},
-			"panel": rapi_doc.DebugPanelApi{},
-			"data":  rapi_db.DataApi{},
+			"api":     rapi_doc.DebugApi{},
+			"log":     rapi_log.LogApi{},
+			"panel":   rapi_doc.DebugPanelApi{},
+			"data":    rapi_panel.DataApi{},
+			"control": rapi_panel.ControlApi{},
 		},
 	}
 
@@ -127,7 +129,7 @@ func Start(config Config) {
 		rapi_doc.Host = config.Host
 	}
 	rapi_doc.TestList = config.TestList
-	rapi_db.DataAccess = config.DataAccess
+	rapi_panel.Config = config.PanelConfig
 
 	rapi_log.Info("Start RApi server %v", config.Host)
 	rapi_log.Info("Disable json wrapper %v", config.DisableJsonWrapper)
@@ -144,7 +146,7 @@ func Start(config Config) {
 		}
 
 		if debugMode {
-			rapi_debug.Log(id).SetRequest(r.Method, r.URL.Path)
+			rapi_debug.Log(id).SetRequest(r.Method, r.URL.Path).SetRemoteAddr(r.RemoteAddr)
 		}
 
 		// Redirect handler

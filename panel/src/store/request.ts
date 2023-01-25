@@ -10,6 +10,16 @@ export interface IRequest {
 
 export type RequestState = {
   list: IRequest[];
+  search: {
+    total: number;
+    count: number;
+    page: number;
+    result: any[];
+  };
+  offset: number;
+  limit: number;
+  error: string;
+  filter: Record<string, string>;
 };
 
 export const useRequestStore = defineStore({
@@ -17,14 +27,34 @@ export const useRequestStore = defineStore({
   state: () =>
     ({
       list: [],
+      search: {
+        result: [],
+        total: 0,
+        page: 0,
+        count: 0,
+      },
+      filter: {},
+      offset: 0,
+      limit: 20,
+      error: "",
     } as RequestState),
   actions: {
-    async getList(offset: number, limit: number) {
-      this.list = (
-        await Axios.get(
-          `${HOST}/debug/api/requestList?offset=${offset}&limit=${limit}`
-        )
-      ).data;
+    async getSearch() {
+      this.error = "";
+      this.search.result = [];
+
+      try {
+        this.search = (
+          await Axios.get(
+            `${HOST}/debug/api/requestList?offset=${this.offset}&limit=${this.limit}`
+          )
+        ).data;
+      } catch (e: any) {
+        this.error = e.response.data.description;
+        this.search.total = 0;
+      }
+
+      console.log(this.search);
     },
   },
 });

@@ -2,25 +2,40 @@
   <div :class="$style.main" style="padding: 10px">
     <!-- Left menu -->
     <el-tabs tab-position="left" class="demo-tabs">
-      <el-tab-pane v-for="v in tabs" :label="v"> {{ v }} </el-tab-pane>
+      <el-tab-pane v-for="v in tabs" :label="v">
+        <!-- Command list -->
+        <div
+          v-for="cmd in controlStore.commandList.filter((x) => x.folder === v)"
+          :key="cmd"
+        >
+          <el-button
+            type="primary"
+            :loading="controlStore.status[cmd.folder + '/' + cmd.name]"
+            @click="controlStore.execute(cmd.folder, cmd.name)"
+            >{{ cmd.name }}</el-button
+          >
+        </div>
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
 
 <script setup lang="ts">
-import { h, onMounted, ref } from "vue";
-import { useMethodStore } from "@/store/method";
-import { useModalStore } from "@/gam-lib-ui/vue/store/modal";
+import { computed, h, onMounted, ref } from "vue";
+import { useControlStore } from "@/store/control";
 
 // Stores
-const methodStore = useMethodStore();
-const modalStore = useModalStore();
+const controlStore = useControlStore();
 
 // Vars
-const tabs = ["backup", "push", "mail"];
+const tabs = computed(() => {
+  return [...new Set(controlStore.commandList.map((x) => x.folder))];
+});
 
 // Hooks
-onMounted(async () => {});
+onMounted(async () => {
+  await controlStore.getCommandList();
+});
 
 // Methods
 </script>

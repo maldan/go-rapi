@@ -5,9 +5,9 @@ import (
 	"github.com/maldan/go-cmhp/cmhp_crypto"
 	"github.com/maldan/go-rapi"
 	"github.com/maldan/go-rapi/rapi_core"
-	"github.com/maldan/go-rapi/rapi_db"
 	"github.com/maldan/go-rapi/rapi_file"
 	"github.com/maldan/go-rapi/rapi_log"
+	"github.com/maldan/go-rapi/rapi_panel"
 	"github.com/maldan/go-rapi/rapi_rest"
 	"os"
 	"os/signal"
@@ -25,7 +25,7 @@ func handler(signal os.Signal) {
 	} else if signal == syscall.SIGINT {
 		fmt.Println("Got CTRL+C signal")
 		fmt.Println("Closing.")
-		time.Sleep(time.Second * 2)
+		time.Sleep(time.Second * 1)
 		os.Exit(0)
 	} else {
 		fmt.Println("Ignoring signal: ", signal)
@@ -48,7 +48,7 @@ func main() {
 
 	// Test
 	for i := 0; i < 40000; i++ {
-		list = append(list, User{Id: i + 1, Email: fmt.Sprintf("lox_%v", i), Password: cmhp_crypto.UID(32)})
+		list = append(list, User{Id: i + 1, HavePermission: 3, Email: fmt.Sprintf("lox_%v", i), Password: cmhp_crypto.UID(32)})
 	}
 
 	rapi.Start(rapi.Config{
@@ -64,8 +64,31 @@ func main() {
 		},
 		DisableJsonWrapper: true,
 		DebugMode:          true,
-		DataAccess: map[string]rapi_db.IDataBase{
-			"test": TestData[User]{},
+		PanelConfig: rapi_panel.PanelConfig{
+			CommandList: []rapi_panel.PanelCommand{
+				{
+					Folder: "backup", Name: "sas", Func: func(s string) any {
+						fmt.Printf("%v", "gas")
+						time.Sleep(time.Second)
+						return ""
+					},
+				},
+				{
+					Folder: "test", Name: "sas", Func: func(s string) any {
+						fmt.Printf("%v", "xxx")
+						return ""
+					},
+				},
+				{
+					Folder: "test", Name: "Generate", Func: func(s string) any {
+						fmt.Printf("%v\n", "xxxxax")
+						return ""
+					},
+				},
+			},
+			DataAccess: map[string]map[string]func(rapi_panel.DataArgs) any{
+				"test": TestAccess,
+			},
 		},
 	})
 }

@@ -19,7 +19,7 @@ export interface DbState {
       name: string;
       isEdit: boolean;
       isHide: boolean;
-      Type: string;
+      type: string;
     }[];
   };
   filter: string;

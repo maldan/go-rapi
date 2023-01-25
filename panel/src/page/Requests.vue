@@ -1,6 +1,6 @@
 <template>
   <div :class="$style.main">
-    <div :class="$style.header">
+    <!--    <div :class="$style.header">
       <el-input
         placeholder="Offset..."
         v-model="offset"
@@ -8,13 +8,25 @@
         @change="refresh"
       />
       <el-input placeholder="Limit..." v-model="limit" @change="refresh" />
-    </div>
+    </div>-->
+
+    <!-- Pagination -->
+    <el-pagination
+      background
+      layout="prev, pager, next"
+      :total="requestStore.search.total"
+      :page-size="requestStore.limit"
+      style="margin-bottom: 10px; width: 100%"
+      @current-change="changePage"
+    />
+
     <el-table
-      :data="requestStore.list"
+      :data="requestStore.search.result"
       stripe
       :border="true"
       style="width: 100%"
       :height="tableHeight"
+      :cell-style="{ verticalAlign: 'top' }"
     >
       <!-- Method tag -->
       <el-table-column label="Method" width="100">
@@ -22,11 +34,26 @@
           <MethodTag :tag="scope.row.httpMethod" />
         </template>
       </el-table-column>
-      <el-table-column prop="url" label="Url" />
+
+      <!-- Url -->
+      <el-table-column label="Url">
+        <template #header>
+          <el-input
+            v-model="requestStore.filter['url']"
+            @change="refresh"
+            size="small"
+            placeholder="Filter by url..."
+          />
+        </template>
+        <template #default="scope">
+          {{ scope.row.url }}
+        </template>
+      </el-table-column>
 
       <el-table-column label="Args">
         <template #default="scope">
           <pre
+            v-if="toggleArgs[scope.row.id]"
             v-html="formatHighlight(scope.row.args || {}, customColorOptions)"
           ></pre>
         </template>
@@ -35,6 +62,7 @@
       <el-table-column label="Response">
         <template #default="scope">
           <pre
+            v-if="toggleArgs[scope.row.id]"
             v-html="
               formatHighlight(scope.row.response || {}, customColorOptions)
             "
@@ -44,13 +72,42 @@
 
       <el-table-column label="Error">
         <template #default="scope">
-          {{ scope.row.error.status ? scope.row.error : "-" }}
+          <pre
+            v-if="toggleArgs[scope.row.id]"
+            v-html="scope.row.error ? formatHighlight(scope.row.error) : '-'"
+          ></pre>
         </template>
       </el-table-column>
 
-      <el-table-column label="Created" width="150">
+      <!-- Remote addr -->
+      <el-table-column label="Remote IP" width="150">
+        <template #default="scope"> {{ scope.row.remoteAddr }} </template>
+      </el-table-column>
+
+      <!-- Status -->
+      <el-table-column label="Status" width="80">
         <template #default="scope">
-          {{ dayjs(scope.row.created).format("HH:mm:ss.SSS") }}
+          <el-tag v-if="scope.row.error?.code" type="danger">{{
+            scope.row.error?.code
+          }}</el-tag>
+          <el-tag v-else type="success">{{ 200 }}</el-tag>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Created" width="180">
+        <template #default="scope">
+          {{ dayjs(scope.row.created).format("MMM DD HH:mm:ss (SSS)") }}
+        </template>
+      </el-table-column>
+
+      <!-- Expand -->
+      <el-table-column label="Expand" width="100">
+        <template #default="scope">
+          <el-button
+            @click="toggleArgs[scope.row.id] = !toggleArgs[scope.row.id]"
+            size="small"
+            >Expand</el-button
+          >
         </template>
       </el-table-column>
     </el-table>
@@ -68,8 +125,6 @@ import formatHighlight from "json-format-highlight";
 const requestStore = useRequestStore();
 
 // Vars
-const offset = ref("0");
-const limit = ref("100");
 const tableHeight = ref(400);
 const customColorOptions = ref({
   keyColor: "#af6ed1",
@@ -79,17 +134,24 @@ const customColorOptions = ref({
   falseColor: "#ff8080",
   nullColor: "#e54b4b",
 });
+const toggleArgs = ref({});
 
 // Hooks
 onMounted(async () => {
   tableHeight.value = window.innerHeight - 120;
-
   await refresh();
 });
 
 // Methods
 async function refresh() {
-  await requestStore.getList(~~offset.value, ~~limit.value);
+  await requestStore.getSearch();
+  console.log(requestStore.search.result);
+}
+
+async function changePage(page: number) {
+  requestStore.offset = (page - 1) * requestStore.limit;
+  requestStore.search.result = [];
+  await requestStore.getSearch();
 }
 </script>
 
@@ -97,7 +159,7 @@ async function refresh() {
 .main {
   padding: 10px;
   font-size: 14px;
-  height: calc(100% - 80px);
+  //height: calc(100% - 80px);
 
   .header {
     display: flex;

@@ -1,12 +1,14 @@
 package main
 
 type User struct {
-	Id       int    `json:"id"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Balance  int    `json:"balance"`
-	Gay      bool   `json:"gay"`
-	Lox      bool   `json:"lox"`
+	Id                 int    `json:"id"`
+	Email              string `json:"email"`
+	Password           string `json:"password"`
+	Balance            int    `json:"balance"`
+	Gay                bool   `json:"gay"`
+	Lox                bool   `json:"lox"`
+	HavePermission     uint64 `json:"havePermission"`
+	OverridePermission uint64 `json:"overridePermission"`
 }
 
 type TemplateBlock struct {

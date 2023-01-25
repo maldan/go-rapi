@@ -23,7 +23,7 @@ type Response struct {
 
 func (r ApiHandler) Handle(args rapi_core.HandlerArgs) {
 	// Handle panic
-	defer rapi_core.HandleError(args)
+	defer rapi_core.HandleError(&args)
 
 	// Disable cors
 	rapi_core.DisableCors(args.RW)
@@ -98,6 +98,11 @@ func (r ApiHandler) Handle(args rapi_core.HandlerArgs) {
 		for key, element := range jsonMap {
 			params[key] = element
 		}
+	}
+
+	// Set args for debug
+	if args.DebugMode {
+		args.MethodArgs = params
 	}
 
 	// Get controller

@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func HandleError(args HandlerArgs) {
+func HandleError(args *HandlerArgs) {
 	args.RW.Header().Add("Content-Type", "application/json")
 
 	if err := recover(); err != nil {
@@ -23,6 +23,7 @@ func HandleError(args HandlerArgs) {
 			args.RW.Write(message)
 			if args.DebugMode {
 				rapi_debug.Log(args.Id).SetError(e)
+				rapi_debug.Log(args.Id).SetArgs(args.MethodArgs)
 			}
 		default:
 			_, file, line, _ := runtime.Caller(3)
@@ -41,6 +42,7 @@ func HandleError(args HandlerArgs) {
 			args.RW.Write(message)
 			if args.DebugMode {
 				rapi_debug.Log(args.Id).SetError(ee)
+				rapi_debug.Log(args.Id).SetArgs(args.MethodArgs)
 			}
 		}
 	}

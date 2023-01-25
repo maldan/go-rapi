@@ -14,7 +14,7 @@ type FileHandler struct {
 
 func (r FileHandler) Handle(args rapi_core.HandlerArgs) {
 	// Handle panic
-	defer rapi_core.HandleError(args)
+	defer rapi_core.HandleError(&args)
 
 	cwd, _ := os.Getwd()
 
