@@ -7,14 +7,15 @@ import (
 )
 
 type Error struct {
-	Status      bool      `json:"status"`
-	Code        int       `json:"code"`
-	Type        string    `json:"type"`
-	Field       string    `json:"field"`
-	Description string    `json:"description"`
-	File        string    `json:"file"`
-	Line        int       `json:"line"`
-	Created     time.Time `json:"created"`
+	Status      bool   `json:"-"`
+	Code        int    `json:"-"`
+	Type        string `json:"type"`
+	Field       string `json:"field,omitempty"`
+	Description string `json:"description"`
+	File        string `json:"-"`
+	Line        int    `json:"-"`
+	// Stack       string    `json:"stack,omitempty"`
+	Created time.Time `json:"-"`
 }
 
 func Fatal(err Error) {

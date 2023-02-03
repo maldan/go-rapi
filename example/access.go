@@ -1,11 +1,10 @@
 package main
 
 import (
-	"github.com/Knetic/govaluate"
 	"github.com/maldan/go-cmhp/cmhp_convert"
 	"github.com/maldan/go-cmhp/cmhp_slice"
-	"github.com/maldan/go-rapi/rapi_error"
 	"github.com/maldan/go-rapi/rapi_panel"
+	"strings"
 )
 
 var TestAccess = map[string]func(rapi_panel.DataArgs) any{
@@ -14,12 +13,12 @@ var TestAccess = map[string]func(rapi_panel.DataArgs) any{
 			// IsDeletable: true,
 			// IsEditable:  true,
 			FieldList: []rapi_panel.FieldInfo{
-				{Name: "id", Type: "int"},
-				{Name: "email", IsEdit: true, Type: "string"},
+				{Name: "id", Type: "int", Width: "100"},
+				{Name: "email", IsEdit: true, Type: "string", HasFilter: true},
 				{Name: "password", IsHide: true, Type: "string"},
 				{Name: "balance", IsEdit: true, Type: "int"},
-				{Name: "gay", IsEdit: true, Type: "bool"},
-				{Name: "lox", Type: "bool"},
+				{Name: "gay", IsEdit: true, Type: "bool", Width: "50"},
+				{Name: "lox", Type: "bool", Width: "50"},
 
 				{
 					Name: "havePermission", Type: rapi_panel.TypeBitmask,
@@ -37,7 +36,7 @@ var TestAccess = map[string]func(rapi_panel.DataArgs) any{
 	},
 	rapi_panel.Search: func(args rapi_panel.DataArgs) any {
 		newList := list
-		if args.Filter != "" {
+		/*if args.Filter != "" {
 			// Expr
 			expression, err := govaluate.NewEvaluableExpression(args.Filter)
 			rapi_error.FatalIfError(err)
@@ -50,6 +49,11 @@ var TestAccess = map[string]func(rapi_panel.DataArgs) any{
 					"password": t.Password,
 				})
 				return result.(bool)
+			})
+		}*/
+		if args.Filter["email"] != "" {
+			newList = cmhp_slice.Filter(list, func(t *User) bool {
+				return strings.Contains(t.Email, args.Filter["email"])
 			})
 		}
 
@@ -73,5 +77,13 @@ var TestAccess = map[string]func(rapi_panel.DataArgs) any{
 		list[args.Id-1] = u
 
 		return data
+	},
+	rapi_panel.Create: func(args rapi_panel.DataArgs) any {
+		user := cmhp_convert.JsonToStruct[User](args.Data)
+
+		user.Id = len(list) - 1
+		list = append(list, user)
+
+		return user
 	},
 }

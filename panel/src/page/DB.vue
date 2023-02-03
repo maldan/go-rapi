@@ -20,13 +20,6 @@
       @current-change="changePage"
     />
 
-    <el-input
-      placeholder="Filter..."
-      @change="refresh"
-      v-model="dbStore.filter"
-      style="margin-bottom: 10px"
-    />
-
     <!-- Data -->
     <el-table
       :data="dbStore.search.result"
@@ -36,17 +29,23 @@
       :height="tableHeight"
       :empty-text="dbStore.error"
     >
-      <!--      <el-table-column
-        v-for="v in dbStore.settings.fieldList.filter((x) => !x.isHide)"
-        :prop="v.name"
-        :label="v.name"
-      />-->
-
       <!-- Custom -->
       <el-table-column
         v-for="v in dbStore.settings.fieldList.filter((x) => !x.isHide)"
         :label="v.name"
+        :width="v.width"
       >
+        <!-- Filter -->
+        <template v-if="v.hasFilter" #header>
+          <el-input
+            v-model="dbStore.filter[v.name]"
+            size="small"
+            @change="refresh"
+            :placeholder="v.name"
+          />
+        </template>
+
+        <!-- Body -->
         <template #default="scope">
           <div v-if="v.type === 'bool'">
             <el-checkbox size="large" :model-value="scope.row[v.name]" />
@@ -82,61 +81,47 @@
       </el-table-column>
     </el-table>
 
-    <!-- Modal Edit -->
-    <el-dialog v-model="dialogVisible" title="Edit" width="30%" draggable>
-      <div
-        v-for="v in dbStore.settings.fieldList"
-        :key="v.name"
-        style="margin-bottom: 10px"
-      >
-        <div v-if="v.type === 'bitmask'" style="margin-bottom: 5px">
-          {{ v.name }}
-        </div>
-        <div v-else style="margin-bottom: 5px">{{ v.label || v.name }}</div>
+    <el-button
+      v-if="dbStore.settings.isCreatable"
+      @click="enableCreateMode()"
+      style="margin-top: 10px"
+      type="success"
+      >Create new</el-button
+    >
 
-        <!-- Type -->
-        <el-input
-          v-if="!v.isEdit"
-          :disabled="!v.isEdit"
-          :placeholder="v.name"
-          v-model="tempRow[v.name]"
-        />
-        <el-input
-          v-if="v.isEdit && v.type === 'string'"
-          :placeholder="v.name"
-          v-model="tempRow[v.name]"
-        />
-        <el-input-number
-          v-if="v.isEdit && v.type === 'int'"
-          :placeholder="v.name"
-          v-model="tempRow[v.name]"
-          style="width: 100%"
-        />
-        <el-checkbox
-          v-if="v.isEdit && v.type === 'bool'"
-          :placeholder="v.name"
-          v-model="tempRow[v.name]"
-        />
-        <div v-if="v.isEdit && v.type === 'bitmask'">
-          <el-checkbox
-            :label="x"
-            v-for="(x, i) in v.label.split(',')"
-            :placeholder="x"
-            @change="
-              tempRow[v.name] = changeBitMask($event, tempRow[v.name], i)
-            "
-            v-model="tempRow[v.name + '_mask_' + i]"
-          />
-          <!--  :checked="(tempRow[v.name] & (1 << i)) === 1 << i" -->
-          <div>
-            Bitmask: {{ tempRow[v.name]?.toString(2) }} {{ tempRow[v.name] }}
-          </div>
+    <!-- Modal Edit -->
+    <el-dialog v-model="isEditMode" title="Edit" width="40%" draggable>
+      <!-- Content -->
+      <div style="max-height: 600px; overflow-y: scroll">
+        <div
+          v-for="v in dbStore.settings.fieldList"
+          :key="v.name"
+          style="margin-bottom: 10px"
+        >
+          <ContentEditor :info="v" :temp-row="tempRow" />
+        </div>
+      </div>
+
+      <template #footer>
+        <el-button type="primary" @click="update"> Save </el-button>
+      </template>
+    </el-dialog>
+
+    <!-- Modal Create -->
+    <el-dialog v-model="isCreateMode" title="Create" width="40%" draggable>
+      <div style="max-height: 600px; overflow-y: scroll">
+        <div
+          v-for="v in dbStore.settings.fieldList"
+          :key="v.name"
+          style="margin-bottom: 10px"
+        >
+          <ContentEditor :info="v" :temp-row="tempRow" />
         </div>
       </div>
 
       <template #footer>
         <span class="dialog-footer">
-          <el-button type="primary" @click="save"> Save </el-button>
+          <el-button type="primary" @click="create"> Save </el-button>
         </span>
       </template>
     </el-dialog>
@@ -146,6 +131,7 @@
 <script setup lang="ts">
 import { computed, h, onMounted, ref } from "vue";
 import { useDbStore } from "@/store/db";
+import ContentEditor from "@/component/db/ContentEditor.vue";
 
 // Stores
 const dbStore = useDbStore();
@@ -154,7 +140,8 @@ const dbStore = useDbStore();
 const offset = ref("0");
 const tableHeight = ref(400);
 const editId = ref(0);
-const dialogVisible = ref(false);
+const isCreateMode = ref(false);
+const isEditMode = ref(false);
 const tempRow = ref({});
 
 // Hooks
@@ -195,9 +182,24 @@ async function editById(id: number) {
     }
   }
 
-  console.log(tempRow.value);
+  isEditMode.value = true;
+}
 
-  dialogVisible.value = true;
+async function enableCreateMode() {
+  tempRow.value = {};
+
+  for (let i = 0; i < dbStore.settings.fieldList.length; i++) {
+    const field = dbStore.settings.fieldList[i];
+    if (field.type === "bitmask") {
+      for (let j = 0; j < 64; j++) {
+        // @ts-ignore
+        tempRow.value[field.name + "_mask_" + j] =
+          (tempRow.value[field.name] & (1 << j)) === 1 << j;
+      }
+    }
+  }
+
+  isCreateMode.value = true;
 }
 
 async function changeTab(tab: string) {
@@ -213,17 +215,16 @@ async function changePage(page: number) {
   await dbStore.getSearch();
 }
 
-async function save() {
+async function update() {
   await dbStore.update(editId.value, tempRow.value);
   await dbStore.getSearch();
-  dialogVisible.value = false;
+  isEditMode.value = false;
 }
 
-function changeBitMask(isSet: boolean, current: number, pos: number): number {
-  if (isSet) {
-    return current | (1 << pos);
-  }
-  return current & ~(1 << pos);
+async function create() {
+  await dbStore.create(tempRow.value);
+  await dbStore.getSearch();
+  isCreateMode.value = false;
 }
 </script>
 

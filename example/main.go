@@ -1,23 +1,32 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"github.com/maldan/go-cmhp/cmhp_crypto"
+	"github.com/maldan/go-cmhp/cmhp_sqllite"
 	"github.com/maldan/go-rapi"
+	"github.com/maldan/go-rapi/core/handler"
+	"github.com/maldan/go-rapi/rapi_config"
 	"github.com/maldan/go-rapi/rapi_core"
+	"github.com/maldan/go-rapi/rapi_error"
 	"github.com/maldan/go-rapi/rapi_file"
 	"github.com/maldan/go-rapi/rapi_log"
 	"github.com/maldan/go-rapi/rapi_panel"
 	"github.com/maldan/go-rapi/rapi_rest"
+	"log"
 	"os"
 	"os/signal"
+	"reflect"
 	"syscall"
 	"time"
+
+	_ "modernc.org/sqlite"
 )
 
 var list = make([]User, 0)
 
-func handler(signal os.Signal) {
+func handlerx(signal os.Signal) {
 	if signal == syscall.SIGTERM {
 		fmt.Println("Got kill signal. ")
 		fmt.Println("Program will terminate now.")
@@ -32,17 +41,44 @@ func handler(signal os.Signal) {
 	}
 }
 
+func m2() {
+	x := rapi_config.Config{
+		Router: []rapi_config.RouteHandler{
+			{
+				Path: "/api",
+				Handler: handler.API{
+					ControllerList: []any{UserApi{}, TemplateApi{}},
+				},
+			},
+			{
+				Path: "/data",
+				Handler: handler.FS{
+					ContentPath: "example",
+				},
+			},
+			{
+				Path:    "/",
+				Handler: handler.VFS{},
+			},
+		},
+	}
+	fmt.Printf("%v\n", reflect.TypeOf(UserApi{}).Name())
+	fmt.Printf("%v\n", x)
+}
+
 func main() {
 	rapi_log.Info("Fuck")
 	rapi_log.Info("Suck")
 	rapi_log.Error("Oak")
+
+	m2()
 
 	sigchnl := make(chan os.Signal, 1)
 	signal.Notify(sigchnl)
 	go func() {
 		for {
 			s := <-sigchnl
-			handler(s)
+			handlerx(s)
 		}
 	}()
 
@@ -50,6 +86,44 @@ func main() {
 	for i := 0; i < 40000; i++ {
 		list = append(list, User{Id: i + 1, HavePermission: 3, Email: fmt.Sprintf("lox_%v", i), Password: cmhp_crypto.UID(32)})
 	}
+
+	file, err := os.Create("sqlite-database.db") // Create SQLite file
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	file.Close()
+
+	sqliteDatabase, _ := sql.Open("sqlite", "./sqlite-database.db") // Open the created SQLite File
+	defer sqliteDatabase.Close()                                    // Defer Closing the database
+
+	type x struct {
+		Id   string
+		Name string
+	}
+	err = cmhp_sqllite.CreateTable[x](sqliteDatabase, "sas")
+	rapi_error.FatalIfError(err)
+
+	/*rapi.Start2(rapi_config.Config{
+		Host: "127.0.0.1:16000",
+		Router: []rapi_config.RouteHandler{
+			{
+				Path: "/api",
+				Handler: handler.API{
+					ControllerList: []any{UserApi{}, TemplateApi{}},
+				},
+			},
+			{
+				Path: "/data",
+				Handler: handler.FS{
+					ContentPath: "example",
+				},
+			},
+			{
+				Path:    "/",
+				Handler: handler.VFS{},
+			},
+		},
+	})*/
 
 	rapi.Start(rapi.Config{
 		Host: "127.0.0.1:16000",

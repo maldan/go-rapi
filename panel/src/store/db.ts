@@ -19,10 +19,12 @@ export interface DbState {
       name: string;
       isEdit: boolean;
       isHide: boolean;
+      hasFilter: boolean;
       type: string;
+      width: string;
     }[];
   };
-  filter: string;
+  filter: Record<string, string>;
   offset: number;
   limit: number;
   error: string;
@@ -46,7 +48,7 @@ export const useDbStore = defineStore({
         page: 0,
         count: 0,
       },
-      filter: "",
+      filter: {},
       offset: 0,
       limit: 20,
       error: "",
@@ -63,6 +65,13 @@ export const useDbStore = defineStore({
     async getById(id: number) {
       return (
         await Axios.get(`${HOST}/debug/data/byId?table=${this.table}&id=${id}`)
+      ).data;
+    },
+    async create(value: any) {
+      return (
+        await Axios.post(`${HOST}/debug/data/create?table=${this.table}`, {
+          data: JSON.stringify(value),
+        })
       ).data;
     },
     async update(id: number, value: any) {
@@ -83,7 +92,7 @@ export const useDbStore = defineStore({
         this.search = (
           await Axios.get(
             `${HOST}/debug/data/search?table=${this.table}&filter=${btoa(
-              this.filter
+              JSON.stringify(this.filter)
             )}&offset=${this.offset}&limit=${this.limit}`
           )
         ).data;

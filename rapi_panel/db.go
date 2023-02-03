@@ -1,9 +1,8 @@
 package rapi_panel
 
 import (
-	"github.com/Knetic/govaluate"
+	"encoding/json"
 	"github.com/maldan/go-cmhp/cmhp_convert"
-	"github.com/maldan/go-cmhp/cmhp_slice"
 	"github.com/maldan/go-rapi/rapi_error"
 )
 
@@ -12,6 +11,7 @@ const GetById = "getById"
 const DeleteById = "deleteById"
 const UpdateById = "updateById"
 const Search = "search"
+const Create = "create"
 
 const TypeInt = "int"
 const TypeString = "string"
@@ -19,14 +19,17 @@ const TypeBool = "bool"
 const TypeBitmask = "bitmask"
 
 type FieldInfo struct {
-	Name   string `json:"name"`
-	IsEdit bool   `json:"isEdit"`
-	IsHide bool   `json:"isHide"`
-	Type   string `json:"type"`
-	Label  string `json:"label"`
+	Name      string `json:"name"`
+	IsEdit    bool   `json:"isEdit"`
+	IsHide    bool   `json:"isHide"`
+	HasFilter bool   `json:"hasFilter"`
+	Type      string `json:"type"`
+	Label     string `json:"label"`
+	Width     string `json:"width"`
 }
 
 type DataSettings struct {
+	IsCreatable bool        `json:"isCreatable"`
 	IsEditable  bool        `json:"isEditable"`
 	IsDeletable bool        `json:"isDeletable"`
 	FieldList   []FieldInfo `json:"fieldList"`
@@ -36,7 +39,7 @@ type DataArgs struct {
 	Id   int    `json:"id"`
 	Data string `json:"data"`
 
-	Filter string
+	Filter map[string]string
 	Offset int
 	Limit  int
 }
@@ -65,17 +68,6 @@ type ArgsUpdate struct {
 type DataApi struct {
 }
 
-func FilterByExpression[T any](slice []T, expr string, filter func(t *T) map[string]any) []T {
-	expression, err := govaluate.NewEvaluableExpression(expr)
-	rapi_error.FatalIfError(err)
-
-	return cmhp_slice.Filter(slice, func(v *T) bool {
-		m := filter(v)
-		result, _ := expression.Evaluate(m)
-		return result.(bool)
-	})
-}
-
 func (u DataApi) GetSettings(args ArgsSearch) any {
 	settings := Config.DataAccess[args.Table][GetSettings](DataArgs{}).(DataSettings)
 
@@ -86,6 +78,10 @@ func (u DataApi) GetSettings(args ArgsSearch) any {
 	// Set editable
 	_, ok = Config.DataAccess[args.Table][UpdateById]
 	settings.IsEditable = ok
+
+	// Set creatable
+	_, ok = Config.DataAccess[args.Table][Create]
+	settings.IsCreatable = ok
 
 	return settings
 }
@@ -99,8 +95,12 @@ func (u DataApi) GetTableList() []string {
 }
 
 func (u DataApi) GetSearch(args ArgsSearch) SearchResult[any] {
+	filter := map[string]string{}
+	err := json.Unmarshal(cmhp_convert.FromBase64(args.Filter), &filter)
+	rapi_error.FatalIfError(err)
+
 	return Config.DataAccess[args.Table][Search](DataArgs{
-		Filter: string(cmhp_convert.FromBase64(args.Filter)),
+		Filter: filter,
 		Offset: args.Offset,
 		Limit:  args.Limit,
 	}).(SearchResult[any])
@@ -121,6 +121,12 @@ func (u DataApi) DeleteById(args ArgsSearch) {
 func (u DataApi) PostById(args ArgsUpdate) {
 	Config.DataAccess[args.Table][UpdateById](DataArgs{
 		Id:   args.Id,
+		Data: args.Data,
+	})
+}
+
+func (u DataApi) PostCreate(args ArgsUpdate) {
+	Config.DataAccess[args.Table][Create](DataArgs{
 		Data: args.Data,
 	})
 }
