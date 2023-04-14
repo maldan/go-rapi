@@ -8,7 +8,7 @@ import (
 
 type Error struct {
 	Status      bool   `json:"-"`
-	Code        int    `json:"-"`
+	Code        int    `json:"code"`
 	Type        string `json:"type"`
 	Field       string `json:"field,omitempty"`
 	Description string `json:"description"`

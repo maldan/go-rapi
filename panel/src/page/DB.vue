@@ -50,6 +50,12 @@
           <div v-if="v.type === 'bool'">
             <el-checkbox size="large" :model-value="scope.row[v.name]" />
           </div>
+          <div v-else-if="v.type === 'date'">
+            {{ dayjs(scope.row[v.name]).format("YYYY MMM DD") }}
+          </div>
+          <div v-else-if="v.type === 'datetime'">
+            {{ dayjs(scope.row[v.name]).format("YYYY MMM DD HH:mm:ss") }}
+          </div>
           <div v-else>{{ scope.row[v.name] }}</div>
         </template>
       </el-table-column>
@@ -87,6 +93,14 @@
       style="margin-top: 10px"
       type="success"
       >Create new</el-button
+    >
+
+    <el-button
+      v-if="dbStore.settings.isExportable"
+      @click="exportData()"
+      style="margin-top: 10px"
+      type="success"
+      >Export</el-button
     >
 
     <!-- Modal Edit -->
@@ -132,6 +146,7 @@
 import { computed, h, onMounted, ref } from "vue";
 import { useDbStore } from "@/store/db";
 import ContentEditor from "@/component/db/ContentEditor.vue";
+import dayjs from "dayjs";
 
 // Stores
 const dbStore = useDbStore();
@@ -200,6 +215,10 @@ async function enableCreateMode() {
   }
 
   isCreateMode.value = true;
+}
+
+async function exportData() {
+  await dbStore.exportData();
 }
 
 async function changeTab(tab: string) {

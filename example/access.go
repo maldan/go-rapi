@@ -17,6 +17,7 @@ var TestAccess = map[string]func(rapi_panel.DataArgs) any{
 				{Name: "email", IsEdit: true, Type: "string", HasFilter: true},
 				{Name: "password", IsHide: true, Type: "string"},
 				{Name: "balance", IsEdit: true, Type: "int"},
+				{Name: "created", Type: "date"},
 				{Name: "gay", IsEdit: true, Type: "bool", Width: "50"},
 				{Name: "lox", Type: "bool", Width: "50"},
 
@@ -25,8 +26,13 @@ var TestAccess = map[string]func(rapi_panel.DataArgs) any{
 					Label: "Can Add Photo,Can Add Metadata,Can Add Documents,Can Suck,Can Fuck,Can Go Crazy,Can Kill Himself,Can Shit Under Himself",
 				},
 
-				{Name: "overridePermission", IsEdit: true, Type: rapi_panel.TypeBitmask,
+				{
+					Name: "overridePermission", IsEdit: true, Type: rapi_panel.TypeBitmask,
 					Label: "Can Add Photo,Can Add Metadata,Can Add Documents,Can Suck,Can Fuck,Can Go Crazy,Can Kill Himself,Can Shit Under Himself",
+				},
+
+				{
+					Name: "photo", IsHide: true, IsEdit: true, Type: rapi_panel.TypeDataUrl,
 				},
 			},
 		}

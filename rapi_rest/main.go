@@ -56,7 +56,14 @@ func (r ApiHandler) Handle(args rapi_core.HandlerArgs) {
 	}
 
 	// Parse body
-	if strings.Contains(args.R.Header.Get("Content-Type"), "multipart/form-data") {
+	if strings.Contains(args.R.Header.Get("Content-Type"), "application/x-www-form-urlencoded") {
+		err := args.R.ParseForm()
+		rapi_error.FatalIfError(err)
+
+		for key, value := range args.R.PostForm {
+			params[key] = value[0]
+		}
+	} else if strings.Contains(args.R.Header.Get("Content-Type"), "multipart/form-data") {
 		// Parse multipart body and collect params
 		args.R.ParseMultipartForm(0)
 		for key, element := range args.R.MultipartForm.Value {

@@ -6,11 +6,25 @@
     </div>
     <div v-else style="margin-bottom: 5px">{{ info.label || info.name }}</div>
 
-    <el-input
-      v-if="info.type === 'string'"
+    <!-- Drop down -->
+    <el-select
+      v-if="info.type === 'string' && info.optionList"
       :placeholder="info.name"
       v-model="tempRow[info.name]"
       :disabled="!info.isEdit"
+      style="width: 100%"
+    >
+      <el-option v-for="x in info.optionList" :key="x" :value="x">{{
+        x
+      }}</el-option>
+    </el-select>
+
+    <el-input
+      v-if="info.type === 'string' && !info.optionList"
+      :placeholder="info.name"
+      v-model="tempRow[info.name]"
+      :disabled="!info.isEdit"
+      :type="info.isTextarea ? 'textarea' : 'text'"
     />
     <el-input-number
       v-if="info.type === 'int'"
@@ -25,6 +39,22 @@
       v-model="tempRow[info.name]"
       :disabled="!info.isEdit"
     />
+    <el-date-picker
+      v-if="info.type === 'date'"
+      v-model="tempRow[info.name]"
+      type="date"
+      :placeholder="info.name"
+      :disabled="!info.isEdit"
+      style="width: 100%"
+    />
+    <el-date-picker
+      v-if="info.type === 'datetime'"
+      v-model="tempRow[info.name]"
+      type="datetime"
+      :placeholder="info.name"
+      :disabled="!info.isEdit"
+      style="width: 100%"
+    />
 
     <!-- Bitmask -->
     <div v-if="info.type === 'bitmask'">
@@ -38,38 +68,76 @@
         :disabled="!info.isEdit"
         v-model="tempRow[info.name + '_mask_' + i]"
       />
-      <!--      <div>
-        Bitmask: {{ tempRow[info.name]?.toString(2) }}
-        {{ tempRow[info.name] }}
-      </div>-->
     </div>
 
-    <!-- Default non edit field -->
-    <!-- <el-input
-       v-if="!info.isEdit"
-       :disabled="!info.isEdit"
-       :placeholder="info.name"
-       v-model="tempRow[info.name]"
-     /> -->
+    <!-- DataUrl -->
+    <div v-if="info.type === 'dataUrl'">
+      <el-upload
+        ref="upload"
+        :limit="1"
+        :auto-upload="false"
+        :on-exceed="handleExceed"
+        :on-change="
+          (e) => {
+            fileSelected(e, tempRow, info.name);
+          }
+        "
+        :disabled="!info.isEdit"
+      >
+        <template #trigger>
+          <el-button type="primary" :disabled="!info.isEdit"
+            >Select {{ info.name }}</el-button
+          >
+        </template>
+      </el-upload>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import dayjs from "dayjs";
 import { ref } from "vue";
+import type { UploadInstance, UploadProps, UploadRawFile } from "element-plus";
+const upload = ref<UploadInstance>();
 
 const props = defineProps<{
-  info: { label: string; isEdit: boolean; type: string; name: string };
+  info: {
+    label: string;
+    isEdit: boolean;
+    isTextarea: boolean;
+    type: string;
+    name: string;
+    optionList: any[];
+  };
   tempRow: any;
 }>();
 
 // const tempRow = ref({});
+const handleExceed: UploadProps["onExceed"] = (files) => {
+  upload.value!.clearFiles();
+  const file = files[0] as UploadRawFile;
+  file.uid = Math.random();
+  upload.value!.handleStart(file);
+};
 
 function changeBitMask(isSet: boolean, current: number, pos: number): number {
   if (isSet) {
     return current | (1 << pos);
   }
   return current & ~(1 << pos);
+}
+
+function fileSelected(e: any, out: any, name: string) {
+  const reader = new FileReader();
+  reader.addEventListener(
+    "load",
+    () => {
+      out[name] = reader.result;
+    },
+    false
+  );
+
+  reader.readAsDataURL(e.raw);
 }
 </script>
 

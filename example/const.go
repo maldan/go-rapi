@@ -1,14 +1,17 @@
 package main
 
+import "time"
+
 type User struct {
-	Id                 int    `json:"id"`
-	Email              string `json:"email"`
-	Password           string `json:"password"`
-	Balance            int    `json:"balance"`
-	Gay                bool   `json:"gay"`
-	Lox                bool   `json:"lox"`
-	HavePermission     uint64 `json:"havePermission"`
-	OverridePermission uint64 `json:"overridePermission"`
+	Id                 int       `json:"id"`
+	Email              string    `json:"email"`
+	Password           string    `json:"password"`
+	Balance            int       `json:"balance"`
+	Gay                bool      `json:"gay"`
+	Lox                bool      `json:"lox"`
+	HavePermission     uint64    `json:"havePermission"`
+	OverridePermission uint64    `json:"overridePermission"`
+	Created            time.Time `json:"created"`
 }
 
 type TemplateBlock struct {

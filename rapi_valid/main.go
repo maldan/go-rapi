@@ -42,6 +42,11 @@ func CheckPassword(password1 string, password2 string) {
 func Required[T any](args T, fields []string) {
 	for _, v := range fields {
 		f := reflect.ValueOf(args)
+		if f.FieldByName(v).Kind() == reflect.Invalid {
+			rapi_error.Fatal(rapi_error.Error{
+				Description: fmt.Sprintf("Field '%v' is required", v),
+			})
+		}
 		if f.FieldByName(v).IsZero() {
 			rapi_error.Fatal(rapi_error.Error{
 				Description: fmt.Sprintf("Field '%v' is required", v),

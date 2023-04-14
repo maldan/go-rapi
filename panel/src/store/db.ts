@@ -101,6 +101,36 @@ export const useDbStore = defineStore({
         this.search.total = 0;
       }
     },
+    async exportData() {
+      try {
+        const exportData = (
+          await Axios.get(
+            `${HOST}/debug/data/export?table=${this.table}&filter=${btoa(
+              JSON.stringify(this.filter)
+            )}&offset=${this.offset}&limit=${this.limit}`
+          )
+        ).data;
+        let out = Object.keys(exportData[0]).join(",") + "\n";
+        for (let i = 0; i < exportData.length; i++) {
+          out +=
+            Object.values(exportData[i])
+              .map((x) => `"${x}"`)
+              .join(",") + "\n";
+        }
+
+        const file = new Blob([out], { type: "text" });
+        const a = document.createElement("a"),
+          url = URL.createObjectURL(file);
+        a.href = url;
+        a.download = this.table + ".csv";
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function () {
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+        }, 0);
+      } catch (e: any) {}
+    },
     async deleteById(id: string) {
       await Axios.delete(
         `${HOST}/debug/data/byId?table=${this.table}&id=${id}`

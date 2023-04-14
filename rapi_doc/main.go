@@ -139,7 +139,7 @@ func (r DebugApi) GetTestList() []rapi_test.TestCase {
 
 func (r DebugApi) GetRequestList(args ArgsRequestListOffset) rapi_panel.SearchResult[*rapi_debug.RapiDebugLog] {
 	sort.Slice(rapi_debug.LogList, func(i, j int) bool {
-		return rapi_debug.LogList[i].Created.Unix() > rapi_debug.LogList[j].Created.Unix()
+		return rapi_debug.LogList[i].Created.UnixMicro() > rapi_debug.LogList[j].Created.UnixMicro()
 	})
 	l := cmhp_slice.Paginate(rapi_debug.LogList, args.Offset, args.Limit)
 

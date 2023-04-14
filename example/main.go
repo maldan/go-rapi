@@ -1,20 +1,16 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"github.com/maldan/go-cmhp/cmhp_crypto"
-	"github.com/maldan/go-cmhp/cmhp_sqllite"
 	"github.com/maldan/go-rapi"
 	"github.com/maldan/go-rapi/core/handler"
 	"github.com/maldan/go-rapi/rapi_config"
 	"github.com/maldan/go-rapi/rapi_core"
-	"github.com/maldan/go-rapi/rapi_error"
 	"github.com/maldan/go-rapi/rapi_file"
 	"github.com/maldan/go-rapi/rapi_log"
 	"github.com/maldan/go-rapi/rapi_panel"
 	"github.com/maldan/go-rapi/rapi_rest"
-	"log"
 	"os"
 	"os/signal"
 	"reflect"
@@ -84,24 +80,11 @@ func main() {
 
 	// Test
 	for i := 0; i < 40000; i++ {
-		list = append(list, User{Id: i + 1, HavePermission: 3, Email: fmt.Sprintf("lox_%v", i), Password: cmhp_crypto.UID(32)})
+		list = append(list, User{
+			Id: i + 1, HavePermission: 3, Email: fmt.Sprintf("lox_%v", i), Password: cmhp_crypto.UID(32),
+			Created: time.Now(),
+		})
 	}
-
-	file, err := os.Create("sqlite-database.db") // Create SQLite file
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	file.Close()
-
-	sqliteDatabase, _ := sql.Open("sqlite", "./sqlite-database.db") // Open the created SQLite File
-	defer sqliteDatabase.Close()                                    // Defer Closing the database
-
-	type x struct {
-		Id   string
-		Name string
-	}
-	err = cmhp_sqllite.CreateTable[x](sqliteDatabase, "sas")
-	rapi_error.FatalIfError(err)
 
 	/*rapi.Start2(rapi_config.Config{
 		Host: "127.0.0.1:16000",
