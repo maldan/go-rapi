@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"github.com/maldan/go-cmhp/cmhp_convert"
 	"github.com/maldan/go-cmhp/cmhp_hash"
 	"github.com/maldan/go-cmhp/cmhp_slice"
 	"github.com/maldan/go-rapi/rapi_debug"
@@ -231,6 +232,22 @@ func (r DebugApi) GetMethodList() []Method {
 	}
 
 	return out
+}
+
+type ArgsAuth struct {
+	Login    string `json:"login"`
+	Password string `json:"password"`
+	Key      string `json:"key"`
+}
+
+func (r DebugApi) PostAuth(args ArgsAuth) string {
+	return cmhp_convert.ToUrlBase64(args.Login + "_" + args.Password)
+}
+func (r DebugApi) GetCheckAuth(args ArgsAuth) bool {
+	if rapi_panel.Config.Password == "" {
+		return true
+	}
+	return cmhp_convert.ToUrlBase64("admin_"+rapi_panel.Config.Password) == args.Key
 }
 
 func FillBody(input *MethodInput, out *map[string]any) {

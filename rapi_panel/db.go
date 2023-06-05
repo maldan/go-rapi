@@ -111,7 +111,7 @@ func (u DataApi) GetTableList() []string {
 
 func (u DataApi) GetSearch(args ArgsSearch) SearchResult[any] {
 	filter := map[string]string{}
-	err := json.Unmarshal(cmhp_convert.FromBase64(args.Filter), &filter)
+	err := json.Unmarshal(cmhp_convert.FromUrlBase64(args.Filter), &filter)
 	rapi_error.FatalIfError(err)
 
 	return Config.DataAccess[args.Table][Search](DataArgs{
@@ -129,7 +129,7 @@ func (u DataApi) GetById(args ArgsSearch) any {
 
 func (u DataApi) GetExport(args ArgsSearch) any {
 	filter := map[string]string{}
-	err := json.Unmarshal(cmhp_convert.FromBase64(args.Filter), &filter)
+	err := json.Unmarshal(cmhp_convert.FromUrlBase64(args.Filter), &filter)
 	rapi_error.FatalIfError(err)
 
 	return Config.DataAccess[args.Table][Export](DataArgs{

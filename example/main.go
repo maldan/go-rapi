@@ -146,6 +146,7 @@ func main() {
 			DataAccess: map[string]map[string]func(rapi_panel.DataArgs) any{
 				"test": TestAccess,
 			},
+			Password: "petux",
 		},
 	})
 }

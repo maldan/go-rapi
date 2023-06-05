@@ -9,6 +9,7 @@ type PanelCommand struct {
 type PanelConfig struct {
 	CommandList []PanelCommand
 	DataAccess  map[string]map[string]func(DataArgs) any
+	Password    string
 }
 
 var Config PanelConfig

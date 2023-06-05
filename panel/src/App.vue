@@ -1,6 +1,7 @@
 <template>
   <div :class="$style.mainApp">
     <el-menu
+      v-if="authStore.isAuth"
       :default-active="$route.path"
       class="el-menu-demo"
       mode="horizontal"
@@ -26,18 +27,49 @@
       </el-menu-item>
     </el-menu>
 
-    <RouterView />
+    <RouterView v-if="authStore.isAuth" />
+
+    <div
+      v-if="!authStore.isAuth"
+      style="padding: 10px; display: flex; flex-direction: column"
+    >
+      <el-input
+        placeholder="Login"
+        v-model="login"
+        style="margin-bottom: 10px"
+      />
+      <el-input
+        placeholder="Password"
+        v-model="password"
+        style="margin-bottom: 10px"
+      />
+      <el-button @click="auth" type="primary" style="flex: 1">Login</el-button>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { RouterView, useRouter } from "vue-router";
+import { onMounted, ref } from "vue";
+import { useAuthStore } from "@/store/auth";
 
 const router = useRouter();
+const authStore = useAuthStore();
+const login = ref("");
+const password = ref("");
 
 const handleSelect = (key: string, keyPath: string[]) => {
   router.push(key);
 };
+
+onMounted(() => {
+  authStore.check(localStorage.getItem("debugAuthKey") + "");
+});
+
+async function auth() {
+  await authStore.auth(login.value, password.value);
+  window.location.reload();
+}
 </script>
 
 <style lang="scss" module>
