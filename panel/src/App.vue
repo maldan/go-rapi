@@ -22,6 +22,12 @@
       <el-menu-item index="/control" style="color: #fed448">
         <el-icon><Operation /></el-icon>Control
       </el-menu-item>
+
+      <!-- Charts -->
+      <el-menu-item index="/chart" style="color: #fed448">
+        <el-icon><DataAnalysis /></el-icon>Chart
+      </el-menu-item>
+
       <el-menu-item index="/settings">
         <el-icon><Tools /></el-icon>Settings
       </el-menu-item>

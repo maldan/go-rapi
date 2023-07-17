@@ -11,14 +11,19 @@
     </div>
 
     <!-- Pagination -->
-    <el-pagination
-      background
-      layout="prev, pager, next"
-      :total="dbStore.search.total"
-      :page-size="dbStore.limit"
-      style="margin-bottom: 10px; width: 100%"
-      @current-change="changePage"
-    />
+    <div style="display: flex">
+      <el-pagination
+        background
+        layout="prev, pager, next"
+        :total="dbStore.search.total"
+        :page-size="dbStore.limit"
+        style="margin-bottom: 10px; width: 100%"
+        @current-change="changePage"
+      />
+      <div style="margin-left: 10px; width: 200px">
+        Total: {{ dbStore.search.total }} records
+      </div>
+    </div>
 
     <!-- Data -->
     <el-table
@@ -37,12 +42,30 @@
       >
         <!-- Filter -->
         <template v-if="v.hasFilter" #header>
+          <!-- Input -->
           <el-input
+            v-if="!v.optionList"
             v-model="dbStore.filter[v.name]"
             size="small"
             @change="refresh"
             :placeholder="v.name"
           />
+          <!-- List -->
+          <el-select
+            v-if="v.optionList"
+            v-model="dbStore.filter[v.name]"
+            size="small"
+            @change="refresh"
+            :placeholder="v.name"
+          >
+            <el-option
+              v-for="o in v.optionList"
+              :key="o"
+              :label="o"
+              :value="o"
+              >{{ o }}</el-option
+            >
+          </el-select>
         </template>
 
         <!-- Body -->
@@ -100,7 +123,7 @@
       @click="exportData()"
       style="margin-top: 10px"
       type="success"
-      >Export</el-button
+      >Export CSV</el-button
     >
 
     <!-- Modal Edit -->

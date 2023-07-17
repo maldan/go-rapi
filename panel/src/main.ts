@@ -25,4 +25,12 @@ app.use(router);
 app.use(UI);
 app.use(ElementPlus);
 
+import VueFusionCharts from "vue-fusioncharts";
+import FusionCharts from "fusioncharts";
+import TimeSeries from "fusioncharts/fusioncharts.timeseries";
+import Charts from "fusioncharts/fusioncharts.charts";
+import CandyTheme from "fusioncharts/themes/fusioncharts.theme.candy";
+
+app.use(VueFusionCharts, FusionCharts, TimeSeries, Charts, CandyTheme);
+
 app.mount("#app");

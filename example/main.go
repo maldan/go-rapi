@@ -11,6 +11,7 @@ import (
 	"github.com/maldan/go-rapi/rapi_log"
 	"github.com/maldan/go-rapi/rapi_panel"
 	"github.com/maldan/go-rapi/rapi_rest"
+	"math/rand"
 	"os"
 	"os/signal"
 	"reflect"
@@ -145,6 +146,60 @@ func main() {
 			},
 			DataAccess: map[string]map[string]func(rapi_panel.DataArgs) any{
 				"test": TestAccess,
+			},
+			ChartList: []rapi_panel.ChartCommand{
+				{
+					Folder: "main",
+					Name:   "test",
+					Func: func(s string) []any {
+						list2 := make([]any, 0)
+						s1 := rand.NewSource(time.Now().UnixNano())
+						r1 := rand.New(s1)
+
+						for i := 0; i < 128; i++ {
+							list2 = append(list2, map[string]any{
+								"date":  "2012-01-01",
+								"value": r1.Float32(),
+							})
+						}
+
+						return list2
+					},
+				},
+				{
+					Folder: "main",
+					Name:   "test2",
+					Func: func(s string) []any {
+						return []any{
+							map[string]any{
+								"value": 1,
+							},
+							map[string]any{
+								"value": 2,
+							},
+							map[string]any{
+								"value": 3,
+							},
+						}
+					},
+				},
+				{
+					Folder: "main2",
+					Name:   "test2",
+					Func: func(s string) []any {
+						return []any{
+							map[string]any{
+								"value": 1,
+							},
+							map[string]any{
+								"value": 2,
+							},
+							map[string]any{
+								"value": 3,
+							},
+						}
+					},
+				},
 			},
 			Password: "petux",
 		},

@@ -107,6 +107,7 @@ func Start(config Config) {
 			"panel":   rapi_doc.DebugPanelApi{},
 			"data":    rapi_panel.DataApi{},
 			"control": rapi_panel.ControlApi{},
+			"chart":   rapi_panel.ChartApi{},
 		},
 	}
 

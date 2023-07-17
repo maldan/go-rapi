@@ -22,6 +22,7 @@ type Context struct {
 	IsServeFile      bool
 	RW               http.ResponseWriter
 	R                *http.Request
+	RemoteIP         string
 }
 
 type File struct {

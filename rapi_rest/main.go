@@ -40,10 +40,15 @@ func (r ApiHandler) Handle(args rapi_core.HandlerArgs) {
 	authorization = strings.Replace(authorization, "Token ", "", 1)
 
 	// Create context
+	remoteIp := ""
+	if len(args.R.Header["X-Forwarded-For"]) > 0 {
+		remoteIp = args.R.Header["X-Forwarded-For"][0]
+	}
 	args.Context = &rapi_core.Context{
 		AccessToken: authorization,
 		RW:          args.RW,
 		R:           args.R,
+		RemoteIP:    remoteIp,
 	}
 
 	// Collect params

@@ -21,7 +21,9 @@
     "pretty-bytes": "^6.0.0",
     "sass": "^1.52.3",
     "vue": "3.2.45",
-    "vue-router": "^4.0.15"
+    "vue-fusioncharts": "^3.2.0",
+    "vue-router": "^4.0.15",
+    "vue3-charts": "^1.1.33"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.1.0",
