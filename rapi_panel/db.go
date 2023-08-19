@@ -2,6 +2,7 @@ package rapi_panel
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/maldan/go-cmhp/cmhp_convert"
 	"github.com/maldan/go-rapi/rapi_error"
 	"sort"
@@ -16,6 +17,7 @@ const Create = "create"
 const Export = "export"
 
 const TypeInt = "int"
+const TypeFloat = "float"
 const TypeString = "string"
 const TypeDate = "date"
 const TypeDateTime = "datetime"
@@ -44,7 +46,7 @@ type DataSettings struct {
 }
 
 type DataArgs struct {
-	Id   int    `json:"id"`
+	Id   string `json:"id"`
 	Data string `json:"data"`
 
 	Filter map[string]string
@@ -62,14 +64,14 @@ type SearchResult[T any] struct {
 type ArgsSearch struct {
 	Table  string `json:"table"`
 	Filter string `json:"filter"`
-	Id     int    `json:"id"`
+	Id     string `json:"id"`
 	Offset int    `json:"offset"`
 	Limit  int    `json:"limit"`
 }
 
 type ArgsUpdate struct {
 	Table string `json:"table"`
-	Id    int    `json:"id"`
+	Id    string `json:"id"`
 	Data  string `json:"data"`
 }
 
@@ -122,6 +124,7 @@ func (u DataApi) GetSearch(args ArgsSearch) SearchResult[any] {
 }
 
 func (u DataApi) GetById(args ArgsSearch) any {
+	fmt.Printf("%+v\n", args)
 	return Config.DataAccess[args.Table][GetById](DataArgs{
 		Id: args.Id,
 	})

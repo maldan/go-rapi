@@ -4,6 +4,7 @@ import (
 	"github.com/maldan/go-cmhp/cmhp_convert"
 	"github.com/maldan/go-cmhp/cmhp_slice"
 	"github.com/maldan/go-rapi/rapi_panel"
+	"strconv"
 	"strings"
 )
 
@@ -38,7 +39,8 @@ var TestAccess = map[string]func(rapi_panel.DataArgs) any{
 		}
 	},
 	rapi_panel.GetById: func(args rapi_panel.DataArgs) any {
-		return list[args.Id-1]
+		id, _ := strconv.Atoi(args.Id)
+		return list[id-1]
 	},
 	rapi_panel.Search: func(args rapi_panel.DataArgs) any {
 		newList := list
@@ -72,7 +74,8 @@ var TestAccess = map[string]func(rapi_panel.DataArgs) any{
 		}
 	},
 	rapi_panel.UpdateById: func(args rapi_panel.DataArgs) any {
-		var u = list[args.Id-1]
+		id, _ := strconv.Atoi(args.Id)
+		var u = list[id-1]
 		data := cmhp_convert.JsonToStruct[User](args.Data)
 
 		u.Email = data.Email
@@ -80,7 +83,7 @@ var TestAccess = map[string]func(rapi_panel.DataArgs) any{
 		u.Balance = data.Balance
 		u.Gay = data.Gay
 		u.OverridePermission = data.OverridePermission
-		list[args.Id-1] = u
+		list[id-1] = u
 
 		return data
 	},

@@ -62,6 +62,23 @@
 
     <!-- Response -->
     <div :class="$style.right">
+      <!-- Access token -->
+      <div :class="$style.input" style="display: flex">
+        <el-select
+          @change="changeAccessToken"
+          style="flex: 1"
+          v-model="accessTokenCurrent"
+        >
+          <el-option v-for="x in accessTokenList" :key="x" :value="x">{{
+            x
+          }}</el-option>
+        </el-select>
+        <el-button @click="dialogAccessToken = true" style="margin-left: 10px"
+          >+</el-button
+        >
+      </div>
+
+      <!-- Input Args -->
       <div :class="$style.input">
         <el-input
           type="textarea"
@@ -145,6 +162,17 @@
         </div>
       </div>
     </el-dialog>
+
+    <!-- Method access token -->
+    <el-dialog v-model="dialogAccessToken" width="40%" draggable>
+      <el-input
+        v-model="accessTokenData"
+        :rows="10"
+        type="textarea"
+        placeholder="Raw json..."
+        @change="saveAccessToken"
+      />
+    </el-dialog>
   </div>
 </template>
 
@@ -165,6 +193,7 @@ const modalStore = useModalStore();
 const controllerList = ref({} as Record<string, any>);
 const selectedMethodUid = ref("");
 const dialogVisible = ref(false);
+const dialogAccessToken = ref(false);
 const customColorOptions = ref({
   keyColor: "#af6ed1",
   numberColor: "#77b0fc",
@@ -174,6 +203,9 @@ const customColorOptions = ref({
   nullColor: "#e54b4b",
 });
 const tableHeight = ref(400);
+const accessTokenList = ref([]);
+const accessTokenData = ref("");
+const accessTokenCurrent = ref("");
 
 // Hooks
 onMounted(async () => {
@@ -187,6 +219,12 @@ onMounted(async () => {
       methodStore.items[i]
     );
   }
+
+  try {
+    accessTokenData.value =
+      localStorage.getItem("rapiPanel_accessToken_list") + "";
+    accessTokenList.value = JSON.parse(accessTokenData.value);
+  } catch {}
 });
 
 // Methods
@@ -224,15 +262,24 @@ function fileSelect(e: any, name: string, destination: any) {
   console.log(e.target.files[0]);
   destination[name] = e.target.files[0];
 }
+
+function saveAccessToken() {
+  localStorage.setItem("rapiPanel_accessToken_list", accessTokenData.value);
+}
+
+function changeAccessToken() {
+  let t = accessTokenCurrent.value.split(":").pop() as string;
+  localStorage.setItem("debug__accessToken", t);
+}
 </script>
 
 <style module lang="scss">
 .main {
   overflow-y: auto;
   height: 100%;
-  padding: 10px;
   display: grid;
   grid-template-columns: 1fr 0.5fr;
+  padding: 10px 0 10px 10px;
 
   .input {
     padding: 10px;
