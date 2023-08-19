@@ -1,6 +1,6 @@
 {
   "name": "@maldan/go-rapi",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "description": "Rest Api Server",
   "main": "index.js",
   "keywords": [],
