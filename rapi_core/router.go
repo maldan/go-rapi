@@ -22,8 +22,8 @@ func HandleError(args *HandlerArgs) {
 			message, _ := json.Marshal(e)
 			args.RW.Write(message)
 			if args.DebugMode {
-				rapi_debug.Log(args.Id).SetError(e)
-				rapi_debug.Log(args.Id).SetArgs(args.MethodArgs)
+				rapi_debug.GetRequestLog(args.Id).SetError(e)
+				// rapi_debug.GetRequestLog(args.Id).SetArgs(args.MethodArgs)
 			}
 		default:
 			_, file, line, _ := runtime.Caller(3)
@@ -41,8 +41,8 @@ func HandleError(args *HandlerArgs) {
 			message, _ := json.Marshal(ee)
 			args.RW.Write(message)
 			if args.DebugMode {
-				rapi_debug.Log(args.Id).SetError(ee)
-				rapi_debug.Log(args.Id).SetArgs(args.MethodArgs)
+				rapi_debug.GetRequestLog(args.Id).SetError(ee)
+				// rapi_debug.GetRequestLog(args.Id).SetArgs(args.MethodArgs)
 			}
 		}
 	}

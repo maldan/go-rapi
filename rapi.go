@@ -45,6 +45,7 @@ type Config struct {
 	// DataAccess         map[string]map[string]func(rapi_panel.DataArgs) any
 	PanelConfig rapi_panel.PanelConfig
 	DebugMode   bool
+	Log         rapi_debug.LogConfig
 }
 
 type Rewrite struct {
@@ -130,6 +131,7 @@ func Start(config Config) {
 		rapi_doc.Host = config.Host
 	}
 	rapi_doc.TestList = config.TestList
+	rapi_doc.OnRequestSearch = config.Log.OnSearch
 	rapi_panel.Config = config.PanelConfig
 
 	rapi_log.Info("Start RApi server %v", config.Host)
@@ -147,7 +149,7 @@ func Start(config Config) {
 		}
 
 		if debugMode {
-			rapi_debug.Log(id).SetRequest(r.Method, r.URL.Path).SetRemoteAddr(r.RemoteAddr)
+			rapi_debug.GetRequestLog(id).SetRequest(r.Method, r.URL.Path).SetRemoteAddr(r.RemoteAddr)
 		}
 
 		// Redirect handler
@@ -167,6 +169,11 @@ func Start(config Config) {
 			DebugMode:          debugMode,
 			Id:                 id,
 		})
+
+		// On log request
+		if debugMode && config.Log.OnRequest != nil {
+			config.Log.OnRequest(*rapi_debug.GetRequestLog(id))
+		}
 	})
 
 	// Start server

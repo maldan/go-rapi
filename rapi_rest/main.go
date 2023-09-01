@@ -168,15 +168,12 @@ func (r ApiHandler) Handle(args rapi_core.HandlerArgs) {
 				debugParams[k] = v
 			}
 		}
-		rapi_debug.Log(args.Id).SetArgs(debugParams)
+		d, _ := json.Marshal(debugParams)
+		rapi_debug.GetRequestLog(args.Id).SetInput(string(d))
 	}
 
 	// Call method
 	value := ExecuteMethod(r.Controller[controllerName], args, *method, params)
-
-	if args.DebugMode {
-		rapi_debug.Log(args.Id).SetResponse(value.Interface())
-	}
 
 	// Skip prepare and write
 	if args.Context.IsSkipProcessing {
@@ -185,6 +182,7 @@ func (r ApiHandler) Handle(args rapi_core.HandlerArgs) {
 
 	// If return file path to server
 	if args.Context.IsServeFile {
+		rapi_debug.GetRequestLog(args.Id).SetResponse("FILE " + value.Interface().(string))
 		http.ServeFile(args.RW, args.R, value.Interface().(string))
 		return
 	}
@@ -210,4 +208,7 @@ func (r ApiHandler) Handle(args rapi_core.HandlerArgs) {
 	// Write response
 	args.RW.Header().Add("Content-Type", "application/json")
 	args.RW.Write(data)
+	if args.DebugMode {
+		rapi_debug.GetRequestLog(args.Id).SetResponse(string(data))
+	}
 }

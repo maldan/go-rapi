@@ -6,18 +6,16 @@ import (
 	"fmt"
 	"github.com/maldan/go-cmhp/cmhp_convert"
 	"github.com/maldan/go-cmhp/cmhp_hash"
-	"github.com/maldan/go-cmhp/cmhp_slice"
+	"github.com/maldan/go-cmhp/cmhp_string"
+	"github.com/maldan/go-rapi/rapi_core"
 	"github.com/maldan/go-rapi/rapi_debug"
 	"github.com/maldan/go-rapi/rapi_panel"
+	"github.com/maldan/go-rapi/rapi_rest"
 	"github.com/maldan/go-rapi/rapi_test"
 	"reflect"
 	"regexp"
-	"sort"
 	"strings"
-
-	"github.com/maldan/go-cmhp/cmhp_string"
-	"github.com/maldan/go-rapi/rapi_core"
-	"github.com/maldan/go-rapi/rapi_rest"
+	"time"
 )
 
 type DebugApi struct {
@@ -69,6 +67,7 @@ var PanelJs string
 var PanelCss string
 var Host string
 var TestList []rapi_test.TestCase
+var OnRequestSearch func(offset int, limit int, date time.Time) rapi_panel.SearchResult[rapi_debug.RapiRequestLog]
 
 func GetInput(method *Method, name string, arg interface{}) *MethodInput {
 	argValue := reflect.ValueOf(arg).Elem()
@@ -138,8 +137,13 @@ func (r DebugApi) GetTestList() []rapi_test.TestCase {
 	return TestList
 }
 
-func (r DebugApi) GetRequestList(args ArgsRequestListOffset) rapi_panel.SearchResult[*rapi_debug.RapiDebugLog] {
-	sort.Slice(rapi_debug.LogList, func(i, j int) bool {
+func (r DebugApi) GetRequestList(args ArgsRequestListOffset) rapi_panel.SearchResult[rapi_debug.RapiRequestLog] {
+	if OnRequestSearch != nil {
+		return OnRequestSearch(args.Offset, args.Limit, time.Now())
+	}
+
+	return rapi_panel.SearchResult[rapi_debug.RapiRequestLog]{}
+	/*sort.Slice(rapi_debug.LogList, func(i, j int) bool {
 		return rapi_debug.LogList[i].Created.UnixMicro() > rapi_debug.LogList[j].Created.UnixMicro()
 	})
 	l := cmhp_slice.Paginate(rapi_debug.LogList, args.Offset, args.Limit)
@@ -149,7 +153,7 @@ func (r DebugApi) GetRequestList(args ArgsRequestListOffset) rapi_panel.SearchRe
 		Total:  len(rapi_debug.LogList),
 		Page:   args.Offset / args.Limit,
 		Result: l,
-	}
+	}*/
 }
 
 func (r DebugApi) GetMethodList() []Method {

@@ -1,6 +1,8 @@
 package rapi_config
 
-import "net/http"
+import (
+	"net/http"
+)
 
 type DebugConfig struct {
 	IsEnabled bool

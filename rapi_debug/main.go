@@ -1,12 +1,6 @@
 package rapi_debug
 
-import (
-	"github.com/maldan/go-rapi/rapi_error"
-	"sync"
-	"time"
-)
-
-type RapiDebugLog struct {
+/*type RapiDebugLog struct {
 	Id         string           `json:"id"`
 	HttpMethod string           `json:"httpMethod"`
 	Url        string           `json:"url"`
@@ -65,3 +59,4 @@ func Log(id string) *RapiDebugLog {
 	LogMap[id] = log
 	return log
 }
+*/

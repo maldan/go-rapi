@@ -50,11 +50,11 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Args">
+      <el-table-column label="Input">
         <template #default="scope">
           <pre
             v-if="toggleArgs[scope.row.id]"
-            v-html="formatHighlight(scope.row.args || {}, customColorOptions)"
+            v-html="formatHighlight(scope.row.input || {}, customColorOptions)"
           ></pre>
         </template>
       </el-table-column>
@@ -87,8 +87,8 @@
       <!-- Status -->
       <el-table-column label="Status" width="80">
         <template #default="scope">
-          <el-tag v-if="scope.row.error?.code" type="danger">{{
-            scope.row.error?.code
+          <el-tag v-if="scope.row.statusCode !== 200" type="danger">{{
+            scope.row.statusCode
           }}</el-tag>
           <el-tag v-else type="success">{{ 200 }}</el-tag>
         </template>

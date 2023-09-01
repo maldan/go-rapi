@@ -18,7 +18,7 @@ func (r UndefinedHandler) Handle(args rapi_core.HandlerArgs) {
 	rapi_core.DisableCors(args.RW)
 
 	if args.DebugMode {
-		rapi_debug.Log(args.Id).SetError(rapi_error.Error{
+		rapi_debug.GetRequestLog(args.Id).SetError(rapi_error.Error{
 			Code: 404,
 			Description: fmt.Sprintf(
 				"Resource for '%v' route not found",
