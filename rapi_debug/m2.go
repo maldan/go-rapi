@@ -9,7 +9,7 @@ import (
 
 type LogConfig struct {
 	OnRequest func(debugLog RapiRequestLog)
-	OnSearch  func(offset int, limit int, date time.Time) rapi_panel.SearchResult[RapiRequestLog]
+	OnSearch  func(args RapiRequestLogSearchArgs) rapi_panel.SearchResult[RapiRequestLog]
 }
 
 type RapiRequestLog struct {
@@ -22,6 +22,13 @@ type RapiRequestLog struct {
 	StatusCode int       `json:"statusCode"`
 	Error      string    `json:"error"`
 	Created    time.Time `json:"created"`
+}
+
+type RapiRequestLogSearchArgs struct {
+	Url     string
+	Offset  int
+	Limit   int
+	Created time.Time
 }
 
 func (l *RapiRequestLog) SetRequest(method string, url string) *RapiRequestLog {

@@ -15,7 +15,6 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
-	"time"
 )
 
 type DebugApi struct {
@@ -67,7 +66,7 @@ var PanelJs string
 var PanelCss string
 var Host string
 var TestList []rapi_test.TestCase
-var OnRequestSearch func(offset int, limit int, date time.Time) rapi_panel.SearchResult[rapi_debug.RapiRequestLog]
+var OnRequestSearch func(args rapi_debug.RapiRequestLogSearchArgs) rapi_panel.SearchResult[rapi_debug.RapiRequestLog]
 
 func GetInput(method *Method, name string, arg interface{}) *MethodInput {
 	argValue := reflect.ValueOf(arg).Elem()
@@ -139,7 +138,10 @@ func (r DebugApi) GetTestList() []rapi_test.TestCase {
 
 func (r DebugApi) GetRequestList(args ArgsRequestListOffset) rapi_panel.SearchResult[rapi_debug.RapiRequestLog] {
 	if OnRequestSearch != nil {
-		return OnRequestSearch(args.Offset, args.Limit, time.Now())
+		return OnRequestSearch(rapi_debug.RapiRequestLogSearchArgs{
+			Offset: args.Offset,
+			Limit:  args.Limit,
+		})
 	}
 
 	return rapi_panel.SearchResult[rapi_debug.RapiRequestLog]{}

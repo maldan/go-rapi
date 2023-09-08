@@ -29,7 +29,7 @@
       :cell-style="{ verticalAlign: 'top' }"
     >
       <!-- Method tag -->
-      <el-table-column label="Method" width="100">
+      <el-table-column label="Method" width="85">
         <template #default="scope">
           <MethodTag :tag="scope.row.httpMethod" />
         </template>
@@ -54,7 +54,9 @@
         <template #default="scope">
           <pre
             v-if="toggleArgs[scope.row.id]"
-            v-html="formatHighlight(scope.row.input || {}, customColorOptions)"
+            v-html="
+              formatHighlight(jsonReformat(scope.row.input), customColorOptions)
+            "
           ></pre>
         </template>
       </el-table-column>
@@ -64,7 +66,10 @@
           <pre
             v-if="toggleArgs[scope.row.id]"
             v-html="
-              formatHighlight(scope.row.response || {}, customColorOptions)
+              formatHighlight(
+                jsonReformat(scope.row.response),
+                customColorOptions
+              )
             "
           ></pre>
         </template>
@@ -75,17 +80,18 @@
           <pre
             v-if="toggleArgs[scope.row.id]"
             v-html="scope.row.error ? formatHighlight(scope.row.error) : '-'"
+            style="white-space: normal"
           ></pre>
         </template>
       </el-table-column>
 
       <!-- Remote addr -->
-      <el-table-column label="Remote IP" width="150">
+      <el-table-column label="Remote IP" width="125">
         <template #default="scope"> {{ scope.row.remoteAddr }} </template>
       </el-table-column>
 
       <!-- Status -->
-      <el-table-column label="Status" width="80">
+      <el-table-column label="Status" width="68">
         <template #default="scope">
           <el-tag v-if="scope.row.statusCode !== 200" type="danger">{{
             scope.row.statusCode
@@ -94,19 +100,19 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Created" width="180">
+      <el-table-column label="Created" width="160">
         <template #default="scope">
-          {{ dayjs(scope.row.created).format("MMM DD HH:mm:ss (SSS)") }}
+          {{ dayjs(scope.row.created).format("MMM DD HH:mm:ss.SSS") }}
         </template>
       </el-table-column>
 
       <!-- Expand -->
-      <el-table-column label="Expand" width="100">
+      <el-table-column label="+" width="60">
         <template #default="scope">
           <el-button
             @click="toggleArgs[scope.row.id] = !toggleArgs[scope.row.id]"
             size="small"
-            >Expand</el-button
+            >+</el-button
           >
         </template>
       </el-table-column>
@@ -152,6 +158,17 @@ async function changePage(page: number) {
   requestStore.offset = (page - 1) * requestStore.limit;
   requestStore.search.result = [];
   await requestStore.getSearch();
+}
+
+function jsonReformat(a: any) {
+  if (!a) {
+    return {};
+  }
+  try {
+    return JSON.stringify(JSON.parse(a), null, 2);
+  } catch {
+    return a;
+  }
 }
 </script>
 

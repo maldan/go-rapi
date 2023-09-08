@@ -149,7 +149,19 @@ func Start(config Config) {
 		}
 
 		if debugMode {
-			rapi_debug.GetRequestLog(id).SetRequest(r.Method, r.URL.Path).SetRemoteAddr(r.RemoteAddr)
+			// Ip
+			ipAddress := r.Header.Get("X-Real-Ip")
+			if ipAddress == "" {
+				ipAddress = r.Header.Get("X-Forwarded-For")
+			}
+			if ipAddress == "" {
+				ipAddress = r.RemoteAddr
+			}
+			ipAddress = strings.Split(ipAddress, ":")[0]
+			rapi_debug.
+				GetRequestLog(id).
+				SetRequest(r.Method, r.URL.Path).
+				SetRemoteAddr(ipAddress)
 		}
 
 		// Redirect handler

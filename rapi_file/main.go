@@ -1,6 +1,9 @@
 package rapi_file
 
 import (
+	"errors"
+	"github.com/maldan/go-rapi/rapi_debug"
+	"github.com/maldan/go-rapi/rapi_error"
 	"net/http"
 	"os"
 	"strings"
@@ -25,5 +28,14 @@ func (r FileHandler) Handle(args rapi_core.HandlerArgs) {
 	path = strings.ReplaceAll(path, "\\", "/")
 
 	rapi_core.DisableCors(args.RW)
+	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+		rapi_error.Fatal(rapi_error.Error{Code: 404, Description: "File not found"})
+	}
+
 	http.ServeFile(args.RW, args.R, path)
+
+	if args.DebugMode {
+		rapi_debug.GetRequestLog(args.Id).SetResponse("SERVE FILE: " + path)
+		// rapi_debug.GetRequestLog(args.Id).SetArgs(args.MethodArgs)
+	}
 }
