@@ -8,8 +8,9 @@ import (
 )
 
 type LogConfig struct {
-	OnRequest func(debugLog RapiRequestLog)
-	OnSearch  func(args RapiRequestLogSearchArgs) rapi_panel.SearchResult[RapiRequestLog]
+	ServiceName string
+	OnRequest   func(debugLog RapiRequestLog)
+	OnSearch    func(args RapiRequestLogSearchArgs) rapi_panel.SearchResult[RapiRequestLog]
 }
 
 type RapiRequestLog struct {

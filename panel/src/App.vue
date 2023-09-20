@@ -10,6 +10,9 @@
       <el-menu-item index="/requests" style="color: #fe6e3d">
         <el-icon><Promotion /></el-icon>Requests
       </el-menu-item>
+      <el-menu-item index="/logs" style="color: #c1fe48">
+        <el-icon><EditPen /></el-icon>Logs
+      </el-menu-item>
       <el-menu-item index="/methods" style="color: #c1fe48">
         <el-icon><EditPen /></el-icon>Methods
       </el-menu-item>
