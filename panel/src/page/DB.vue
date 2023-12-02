@@ -79,7 +79,12 @@
           <div v-else-if="v.type === 'datetime'">
             {{ dayjs(scope.row[v.name]).format("YYYY MMM DD HH:mm:ss") }}
           </div>
-          <div v-else>{{ scope.row[v.name] }}</div>
+          <div v-else-if="v.type === 'string'">
+            {{ scope.row[v.name] ? scope.row[v.name].slice(0, 256) : "" }}
+          </div>
+          <div v-else>
+            {{ scope.row[v.name] }}
+          </div>
         </template>
       </el-table-column>
 
@@ -127,9 +132,9 @@
     >
 
     <!-- Modal Edit -->
-    <el-dialog v-model="isEditMode" title="Edit" width="40%" draggable>
+    <el-dialog v-model="isEditMode" title="Edit" width="50%" draggable>
       <!-- Content -->
-      <div style="max-height: 600px; overflow-y: scroll">
+      <div style="max-height: 90vh; overflow-y: scroll">
         <div
           v-for="v in dbStore.settings.fieldList"
           :key="v.name"
@@ -145,7 +150,7 @@
     </el-dialog>
 
     <!-- Modal Create -->
-    <el-dialog v-model="isCreateMode" title="Create" width="40%" draggable>
+    <el-dialog v-model="isCreateMode" title="Create" width="50%" draggable>
       <div style="max-height: 600px; overflow-y: scroll">
         <div
           v-for="v in dbStore.settings.fieldList"

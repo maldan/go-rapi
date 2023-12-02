@@ -31,6 +31,11 @@
         <el-icon><DataAnalysis /></el-icon>Chart
       </el-menu-item>
 
+      <!-- Backup -->
+      <el-menu-item index="/backup" style="color: #fed448">
+        <el-icon><DataAnalysis /></el-icon>Backup
+      </el-menu-item>
+
       <el-menu-item index="/settings">
         <el-icon><Tools /></el-icon>Settings
       </el-menu-item>
@@ -61,6 +66,7 @@
 import { RouterView, useRouter } from "vue-router";
 import { onMounted, ref } from "vue";
 import { useAuthStore } from "@/store/auth";
+import Axios from "axios";
 
 const router = useRouter();
 const authStore = useAuthStore();

@@ -124,41 +124,66 @@ func ApplySlice(field *reflect.Value, v interface{}) {
 func ApplyTime(field *reflect.Value, v interface{}) {
 	t := time.Now()
 
+	// RFC3339Nano without T
 	t1, err := time.Parse("2006-01-02 15:04:05.999999999Z07:00", v.(string))
 	if err == nil {
-		t1 = time.Date(t1.Year(), t1.Month(), t1.Day(), t1.Hour(), t1.Minute(), t1.Second(), t.Nanosecond(), t.Location())
+		t1 = time.Date(t1.Year(), t1.Month(), t1.Day(), t1.Hour(), t1.Minute(), t1.Second(), t1.Nanosecond(), t1.Location())
 		field.Set(reflect.ValueOf(t1))
 		return
 	}
 
+	// My time format
+	t1, err = time.Parse("2006-01-02 15:04:05 -07:00", v.(string))
+	if err == nil {
+		fmt.Printf("MY TIME FORMAT %v\n", v.(string))
+		t1 = time.Date(t1.Year(), t1.Month(), t1.Day(), t1.Hour(), t1.Minute(), t1.Second(), t1.Nanosecond(), t1.Location())
+		field.Set(reflect.ValueOf(t1))
+		return
+	}
+
+	// RFC3339
+	t1, err = time.Parse("2006-01-02T15:04:05Z07:00", v.(string))
+	if err == nil {
+		fmt.Printf("RFC3339 %v\n", v.(string))
+		t1 = time.Date(t1.Year(), t1.Month(), t1.Day(), t1.Hour(), t1.Minute(), t1.Second(), t1.Nanosecond(), t1.Location())
+		field.Set(reflect.ValueOf(t1))
+		return
+	}
+
+	// RFC3339Nano
 	t1, err = time.Parse("2006-01-02T15:04:05.999999999Z07:00", v.(string))
 	if err == nil {
-		t1 = time.Date(t1.Year(), t1.Month(), t1.Day(), t1.Hour(), t1.Minute(), t1.Second(), t.Nanosecond(), t.Location())
+		fmt.Printf("RFC3339Nano %v\n", v.(string))
+		t1 = time.Date(t1.Year(), t1.Month(), t1.Day(), t1.Hour(), t1.Minute(), t1.Second(), t1.Nanosecond(), t1.Location())
 		field.Set(reflect.ValueOf(t1))
 		return
 	}
 
+	// JSON date time with nanoseconds
 	t1, err = time.Parse("2006-01-02T15:04:05.999Z", v.(string))
 	if err == nil {
-		t1 = time.Date(t1.Year(), t1.Month(), t1.Day(), t1.Hour(), t1.Minute(), t1.Second(), t.Nanosecond(), t.Location())
+		t1 = time.Date(t1.Year(), t1.Month(), t1.Day(), t1.Hour(), t1.Minute(), t1.Second(), t1.Nanosecond(), t.Location())
 		field.Set(reflect.ValueOf(t1))
 		return
 	}
 
+	// JSON date time
 	t1, err = time.Parse("2006-01-02T15:04:05", v.(string))
 	if err == nil {
-		t1 = time.Date(t1.Year(), t1.Month(), t1.Day(), t1.Hour(), t1.Minute(), t1.Second(), t.Nanosecond(), t.Location())
+		t1 = time.Date(t1.Year(), t1.Month(), t1.Day(), t1.Hour(), t1.Minute(), t1.Second(), 0, t.Location())
 		field.Set(reflect.ValueOf(t1))
 		return
 	}
 
+	// Date time
 	t1, err = time.Parse("2006-01-02 15:04:05", v.(string))
 	if err == nil {
-		t1 = time.Date(t1.Year(), t1.Month(), t1.Day(), t1.Hour(), t1.Minute(), t1.Second(), t.Nanosecond(), t.Location())
+		t1 = time.Date(t1.Year(), t1.Month(), t1.Day(), t1.Hour(), t1.Minute(), t1.Second(), 0, t.Location())
 		field.Set(reflect.ValueOf(t1))
 		return
 	}
 
+	// Only date
 	t1, err = time.Parse("2006-01-02", v.(string))
 	if err == nil {
 		t1 = time.Date(t1.Year(), t1.Month(), t1.Day(), 0, 0, 0, 0, t.Location())
@@ -167,13 +192,31 @@ func ApplyTime(field *reflect.Value, v interface{}) {
 	}
 }
 
-//
 func ApplyPtr(field *reflect.Value, v interface{}) {
-	field.Set(reflect.New(field.Type().Elem()))
-	x := field.Elem()
-
 	if reflect.TypeOf(v).Kind() == reflect.Map {
+		field.Set(reflect.New(field.Type().Elem()))
+		x := field.Elem()
 		FillFieldList(&x, field.Elem().Type(), v.(map[string]interface{}))
+	}
+
+	// If value is *float64
+	if reflect.TypeOf(v).Kind() == reflect.Float64 {
+		// If field is *float32
+		if field.Type().Elem().Kind() == reflect.Float32 {
+			pointerToData := reflect.New(reflect.TypeOf(float32(0)))
+			pointerToData.Elem().SetFloat(v.(float64))
+			field.Set(pointerToData)
+		}
+	}
+
+	// If value is *string
+	if reflect.TypeOf(v).Kind() == reflect.String {
+		// If field is *string
+		if field.Type().Elem().Kind() == reflect.String {
+			pointerToData := reflect.New(reflect.TypeOf(""))
+			pointerToData.Elem().SetString(v.(string))
+			field.Set(pointerToData)
+		}
 	}
 }
 

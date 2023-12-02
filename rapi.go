@@ -2,6 +2,7 @@ package rapi
 
 import (
 	_ "embed"
+	"github.com/maldan/go-cmhp/cmhp_convert"
 	"github.com/maldan/go-cmhp/cmhp_crypto"
 	"github.com/maldan/go-rapi/rapi_core"
 	"github.com/maldan/go-rapi/rapi_debug"
@@ -109,6 +110,7 @@ func Start(config Config) {
 			"data":    rapi_panel.DataApi{},
 			"control": rapi_panel.ControlApi{},
 			"chart":   rapi_panel.ChartApi{},
+			"backup":  rapi_panel.BackupApi{},
 		},
 	}
 
@@ -134,18 +136,45 @@ func Start(config Config) {
 	rapi_doc.OnRequestSearch = config.Log.OnSearch
 	rapi_panel.Config = config.PanelConfig
 
+	// Run backup schedule
+	go rapi_panel.Config.BackupConfig.Run()
+
 	rapi_log.Info("Start RApi server %v", config.Host)
 	rapi_log.Info("Disable json wrapper %v", config.DisableJsonWrapper)
 	rapi_log.Info("Debug host %v", rapi_doc.Host)
 	rapi_log.Info("Debug mode %v", config.DebugMode)
+
+	// Unauth access
+	allowList := []string{
+		"/debug/panel", "/debug/panel/", "/debug/panel/js",
+		"/debug/panel/css", "/debug/api/auth",
+	}
 
 	// Entry point
 	http.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
 		id := cmhp_crypto.UID(16)
 		debugMode := config.DebugMode
 
+		// Auth mode
 		if strings.HasPrefix(r.URL.Path, "/debug/") {
 			debugMode = false
+
+			// Api access
+			itsOkay := false
+			for _, aUrl := range allowList {
+				if r.URL.Path == aUrl {
+					itsOkay = true
+					break
+				}
+			}
+
+			// Checking access
+			if !itsOkay {
+				if r.Header.Get("DebugAuthKey") != cmhp_convert.ToUrlBase64("admin_"+config.PanelConfig.Password) {
+					// @TODO enable
+					// rapi_error.Fatal(rapi_error.Error{Code: 401})
+				}
+			}
 		}
 
 		if debugMode {

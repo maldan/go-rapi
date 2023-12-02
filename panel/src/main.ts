@@ -10,6 +10,11 @@ import App from "./App.vue";
 import router from "./router";
 import UI from "@/gam-lib-ui/vue/ui";
 import dayjs from "dayjs";
+import Axios from "axios";
+
+Axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
+Axios.defaults.headers.common["DebugAuthKey"] =
+  localStorage.getItem("debugAuthKey") + "";
 
 const app = createApp(App);
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {

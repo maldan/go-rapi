@@ -33,6 +33,7 @@ type FieldInfo struct {
 	Type       string `json:"type"`
 	Label      string `json:"label"`
 	Width      string `json:"width"`
+	Height     string `json:"height"`
 	IsTextarea bool   `json:"isTextarea"`
 	OptionList []any  `json:"optionList"`
 }

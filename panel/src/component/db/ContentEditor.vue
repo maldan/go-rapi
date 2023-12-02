@@ -25,9 +25,10 @@
       v-model="tempRow[info.name]"
       :disabled="!info.isEdit"
       :type="info.isTextarea ? 'textarea' : 'text'"
+      :input-style="{ height: getHeight(info.height) }"
     />
     <el-input-number
-      v-if="info.type === 'int'"
+      v-if="info.type === 'int' || info.type === 'float'"
       :placeholder="info.name"
       v-model="tempRow[info.name]"
       style="width: 100%"
@@ -84,6 +85,12 @@
         "
         :disabled="!info.isEdit"
       >
+        <img
+          v-if="info.name === 'image' || info.name === 'photo'"
+          :src="tempRow[info.name]"
+          alt=""
+          style="max-width: 128px; max-height: 128px"
+        />
         <template #trigger>
           <el-button type="primary" :disabled="!info.isEdit"
             >Select {{ info.name }}</el-button
@@ -107,6 +114,7 @@ const props = defineProps<{
     isTextarea: boolean;
     type: string;
     name: string;
+    height: string;
     optionList: any[];
   };
   tempRow: any;
@@ -138,6 +146,12 @@ function fileSelected(e: any, out: any, name: string) {
   );
 
   reader.readAsDataURL(e.raw);
+}
+
+function getHeight(h: string) {
+  if (!h || h === "0") return "auto";
+  if (!Number(h)) return h;
+  return h + "px";
 }
 </script>
 

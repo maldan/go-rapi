@@ -5,6 +5,7 @@ import (
 	"github.com/maldan/go-cmhp/cmhp_crypto"
 	"github.com/maldan/go-rapi"
 	"github.com/maldan/go-rapi/core/handler"
+	"github.com/maldan/go-rapi/rapi_backup"
 	"github.com/maldan/go-rapi/rapi_config"
 	"github.com/maldan/go-rapi/rapi_core"
 	"github.com/maldan/go-rapi/rapi_file"
@@ -110,7 +111,7 @@ func main() {
 	})*/
 
 	rapi.Start(rapi.Config{
-		Host: "127.0.0.1:16000",
+		Host: "127.0.0.1:16001",
 		Router: map[string]rapi_core.Handler{
 			"/": rapi_file.FileHandler{Root: "@"},
 			"/api": rapi_rest.ApiHandler{
@@ -202,6 +203,23 @@ func main() {
 				},
 			},
 			Password: "petux",
+			BackupConfig: rapi_panel.BackupConfig{
+				HistoryFile: "./backup_history.json",
+				TaskList: []rapi_backup.Task{
+					{
+						Id:     "main_db",
+						Src:    "./db/.",
+						Dst:    "./backup/%date%",
+						Period: "1h",
+						BeforeRun: func(task *rapi_backup.Task) {
+
+						},
+						AfterRun: func(task *rapi_backup.Task) {
+							task.Exec("tar", "-czf", "my_archive.tar.gz", task.GetDestination())
+						},
+					},
+				},
+			},
 		},
 	})
 }

@@ -7,6 +7,7 @@ import Requests from "../page/Requests.vue";
 import DB from "../page/DB.vue";
 import Control from "../page/Control.vue";
 import Chart from "../page/Chart.vue";
+import Backup from "../page/Backup.vue";
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -50,6 +51,11 @@ const router = createRouter({
       path: "/chart",
       name: "chart",
       component: Chart,
+    },
+    {
+      path: "/backup",
+      name: "backup",
+      component: Backup,
     },
   ],
 });

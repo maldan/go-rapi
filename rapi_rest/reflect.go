@@ -90,15 +90,20 @@ func FillFieldList(s *reflect.Value, ss reflect.Type, params map[string]interfac
 				switch field.Kind() {
 				case reflect.String:
 					ApplyString(&field, v)
+					break
 				case reflect.Uint64, reflect.Uint32, reflect.Uint16, reflect.Uint8, reflect.Uint,
 					reflect.Int64, reflect.Int32, reflect.Int16, reflect.Int8, reflect.Int:
 					ApplyInt(&field, v)
+					break
 				case reflect.Float32, reflect.Float64:
 					ApplyFloat(&field, v)
+					break
 				case reflect.Bool:
 					ApplyBool(&field, v)
+					break
 				case reflect.Slice:
 					ApplySlice(&field, v)
+					break
 				case reflect.Struct:
 					if field.Type().Name() == "File" {
 						field.Set(reflect.ValueOf(v))
@@ -109,13 +114,15 @@ func FillFieldList(s *reflect.Value, ss reflect.Type, params map[string]interfac
 							FillFieldList(&field, reflect.TypeOf(field.Interface()), v.(map[string]interface{}))
 						}
 					}
+					break
 				case reflect.Ptr:
 					ApplyPtr(&field, v)
-					continue
+					break
 				case reflect.Map:
 					ApplyMap(&field, v)
+					break
 				default:
-					continue
+					break
 				}
 			}
 		}

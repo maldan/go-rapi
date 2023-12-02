@@ -22,6 +22,7 @@ export interface DbState {
       hasFilter: boolean;
       type: string;
       width: string;
+      height: string;
     }[];
   };
   filter: Record<string, string>;
@@ -129,7 +130,9 @@ export const useDbStore = defineStore({
           document.body.removeChild(a);
           window.URL.revokeObjectURL(url);
         }, 0);
-      } catch (e: any) {}
+      } catch (e: any) {
+        console.error(e);
+      }
     },
     async deleteById(id: string) {
       await Axios.delete(
