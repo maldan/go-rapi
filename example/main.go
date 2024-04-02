@@ -8,13 +8,14 @@ import (
 	"github.com/maldan/go-rapi/rapi_backup"
 	"github.com/maldan/go-rapi/rapi_config"
 	"github.com/maldan/go-rapi/rapi_core"
+	"github.com/maldan/go-rapi/rapi_error"
 	"github.com/maldan/go-rapi/rapi_file"
 	"github.com/maldan/go-rapi/rapi_log"
 	"github.com/maldan/go-rapi/rapi_panel"
 	"github.com/maldan/go-rapi/rapi_rest"
 	"math/rand"
+	"net/http"
 	"os"
-	"os/signal"
 	"reflect"
 	"syscall"
 	"time"
@@ -69,7 +70,7 @@ func main() {
 	rapi_log.Info("Suck")
 	rapi_log.Error("Oak")
 
-	m2()
+	/*m2()
 
 	sigchnl := make(chan os.Signal, 1)
 	signal.Notify(sigchnl)
@@ -78,7 +79,7 @@ func main() {
 			s := <-sigchnl
 			handlerx(s)
 		}
-	}()
+	}()*/
 
 	// Test
 	for i := 0; i < 40000; i++ {
@@ -111,7 +112,7 @@ func main() {
 	})*/
 
 	rapi.Start(rapi.Config{
-		Host: "127.0.0.1:16001",
+		Host: "127.0.0.1:16000",
 		Router: map[string]rapi_core.Handler{
 			"/": rapi_file.FileHandler{Root: "@"},
 			"/api": rapi_rest.ApiHandler{
@@ -207,16 +208,38 @@ func main() {
 				HistoryFile: "./backup_history.json",
 				TaskList: []rapi_backup.Task{
 					{
-						Id:     "main_db",
-						Src:    "./db/.",
-						Dst:    "./backup/%date%",
-						Period: "1h",
-						BeforeRun: func(task *rapi_backup.Task) {
+						Id:        "main_db",
+						IsVirtual: true,
 
+						// Src:    []string{"./db/."},
+
+						Dst:    []string{"./backup/"},
+						Period: "1m",
+						BeforeRun: func(task *rapi_backup.Task) error {
+							name := fmt.Sprintf("./main_%v.tar.gz", time.Now().Format("2006-01-02_15_04_05"))
+							task.Exec("tar", "-czf", name, "./db/.")
+							task.SrcVirtual = []string{name}
+							task.RemoveQueue = []string{name}
+
+							return nil
 						},
-						AfterRun: func(task *rapi_backup.Task) {
-							task.Exec("tar", "-czf", "my_archive.tar.gz", task.GetDestination())
-						},
+					},
+				},
+			},
+			LogsConfig: []rapi_panel.LogConfig{
+				{
+					Name: "Test",
+					Download: func(from time.Time, to time.Time, writer http.ResponseWriter) {
+						fmt.Printf("%v\n", from)
+						fmt.Printf("%v\n", to)
+						rapi_error.Fatal(rapi_error.Error{Description: "gas"})
+						writer.Write([]byte("gas"))
+					},
+				},
+				{
+					Name: "Rock",
+					Download: func(from time.Time, to time.Time, writer http.ResponseWriter) {
+						writer.Write([]byte("gas"))
 					},
 				},
 			},

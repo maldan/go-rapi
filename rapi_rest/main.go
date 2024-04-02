@@ -55,6 +55,7 @@ func (r ApiHandler) Handle(args rapi_core.HandlerArgs) {
 	params := map[string]interface{}{
 		"accessToken":    authorization,
 		"timeZoneOffset": args.R.Header.Get("timeZoneOffset"),
+		"buildVersion":   args.R.Header.Get("buildVersion"),
 	}
 
 	for key, element := range args.R.URL.Query() {

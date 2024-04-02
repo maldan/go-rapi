@@ -15,14 +15,30 @@
       <el-table-column label="Src">
         <template #default="scope"> {{ scope.row.src }} </template>
       </el-table-column>
+      <el-table-column label="Src Temp">
+        <template #default="scope"> {{ scope.row.srcTemp }} </template>
+      </el-table-column>
       <el-table-column label="Dst">
         <template #default="scope"> {{ scope.row.dst }} </template>
       </el-table-column>
       <el-table-column label="Period">
         <template #default="scope"> {{ scope.row.period }} </template>
       </el-table-column>
+      <el-table-column label="Status">
+        <template #default="scope"> {{ scope.row.status }} </template>
+      </el-table-column>
+      <el-table-column label="Error">
+        <template #default="scope"> {{ scope.row.error }} </template>
+      </el-table-column>
       <el-table-column label="Last Run">
-        <template #default="scope"> {{ scope.row.lastRun }} </template>
+        <template #default="scope">
+          {{ dayjs(scope.row.lastRun).format("DD MMM YYYY HH:mm:ss") }}
+        </template>
+      </el-table-column>
+      <el-table-column label="Last Run">
+        <template #default="scope">
+          {{ dayjs(scope.row.nextRun).format("DD MMM YYYY HH:mm:ss") }}
+        </template>
       </el-table-column>
     </el-table>
   </div>
@@ -32,6 +48,7 @@
 import { useLogStore } from "@/store/log";
 import { onMounted, ref } from "vue";
 import { useBackupStore } from "@/store/backup";
+import dayjs from "dayjs";
 
 const backupStore = useBackupStore();
 const tableHeight = ref(400);

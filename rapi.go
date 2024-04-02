@@ -135,9 +135,12 @@ func Start(config Config) {
 	rapi_doc.TestList = config.TestList
 	rapi_doc.OnRequestSearch = config.Log.OnSearch
 	rapi_panel.Config = config.PanelConfig
+	rapi_log.Config = config.PanelConfig
 
 	// Run backup schedule
-	go rapi_panel.Config.BackupConfig.Run()
+	if rapi_panel.Config.BackupConfig.IsRun {
+		go rapi_panel.Config.BackupConfig.Run()
+	}
 
 	rapi_log.Info("Start RApi server %v", config.Host)
 	rapi_log.Info("Disable json wrapper %v", config.DisableJsonWrapper)

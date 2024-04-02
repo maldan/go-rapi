@@ -33,7 +33,9 @@ export const useRequestStore = defineStore({
         page: 0,
         count: 0,
       },
-      filter: {},
+      filter: {
+        url: "",
+      },
       offset: 0,
       limit: 20,
       error: "",
@@ -46,7 +48,9 @@ export const useRequestStore = defineStore({
       try {
         this.search = (
           await Axios.get(
-            `${HOST}/debug/api/requestList?offset=${this.offset}&limit=${this.limit}`
+            `${HOST}/debug/api/requestList?offset=${this.offset}&limit=${
+              this.limit
+            }&filter=${btoa(JSON.stringify(this.filter))}`
           )
         ).data;
       } catch (e: any) {

@@ -13,6 +13,9 @@ export const useLogStore = defineStore({
       items: [],
     } as LogState),
   actions: {
+    async getCategoryList() {
+      return (await Axios.get(`${HOST}/debug/log/categoryList`)).data;
+    },
     async getList(date: string) {
       this.items = (
         await Axios.get(`${HOST}/debug/log/search?date=${date}`)

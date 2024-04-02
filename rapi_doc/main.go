@@ -2,6 +2,7 @@ package rapi_doc
 
 import (
 	_ "embed"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"github.com/maldan/go-cmhp/cmhp_convert"
@@ -56,8 +57,9 @@ type ArgsPostmanCollection struct {
 }
 
 type ArgsRequestListOffset struct {
-	Offset int `json:"offset"`
-	Limit  int `json:"limit"`
+	Offset int    `json:"offset"`
+	Limit  int    `json:"limit"`
+	Filter string `json:"filter"`
 }
 
 var Router map[string]rapi_core.Handler
@@ -138,6 +140,18 @@ func (r DebugApi) GetTestList() []rapi_test.TestCase {
 
 func (r DebugApi) GetRequestList(args ArgsRequestListOffset) rapi_panel.SearchResult[rapi_debug.RapiRequestLog] {
 	if OnRequestSearch != nil {
+		decodedBytes, err := base64.StdEncoding.DecodeString(args.Filter)
+		if err == nil {
+			filter := map[string]string{}
+			json.Unmarshal(decodedBytes, &filter)
+
+			return OnRequestSearch(rapi_debug.RapiRequestLogSearchArgs{
+				Url:    filter["url"],
+				Offset: args.Offset,
+				Limit:  args.Limit,
+			})
+		}
+
 		return OnRequestSearch(rapi_debug.RapiRequestLogSearchArgs{
 			Offset: args.Offset,
 			Limit:  args.Limit,

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/maldan/go-rapi/rapi_backup"
+	"net/http"
 	"os"
 	"path"
 	"runtime"
@@ -25,8 +26,14 @@ type ChartCommand struct {
 }
 
 type BackupConfig struct {
+	IsRun       bool
 	HistoryFile string
 	TaskList    []rapi_backup.Task `json:"taskList"`
+}
+
+type LogConfig struct {
+	Name     string                                                         `json:"name"`
+	Download func(from time.Time, to time.Time, writer http.ResponseWriter) `json:"-"`
 }
 
 func (b *BackupConfig) Run() {
@@ -47,19 +54,51 @@ func (b *BackupConfig) Run() {
 				continue
 			}
 			t := time.Now()
+			if task.BeforeRun != nil {
+				fmt.Printf("[BACKUP TASK BEFORE RUN] Id: %v\n", task.Id)
+				err := task.BeforeRun(task)
+				if err != nil {
+					task.Status = "error"
+					task.Error = err.Error()
+					fmt.Printf("[BACKUP TASK BEFORE RUN ERR] Id: %v\n", err)
+					continue
+				}
+			}
 			fmt.Printf("[BACKUP TASK START] Id: %v\n", task.Id)
-			task.BeforeRun(task)
 			task.Start()
 			task.DoRsync()
+
+			if task.Status == "error" {
+				continue
+			}
+
 			task.Done()
-			task.AfterRun(task)
 			fmt.Printf("[BACKUP TASK DONE] Id: %v | Time: %v\n", task.Id, time.Since(t))
+			if task.AfterRun != nil {
+				err := task.AfterRun(task)
+				if err != nil {
+					task.Status = "error"
+					task.Error = err.Error()
+					fmt.Printf("[BACKUP TASK AFTER RUN ERR] Id: %v\n", err)
+					continue
+				}
+				fmt.Printf("[BACKUP TASK AFTER DONE] Id: %v | Time: %v\n", task.Id, time.Since(t))
+			}
+
+			// Clean resource after work
+			task.Clean()
 
 			// Calculate next run
 			periods := strings.Split(task.Period, " ")
 			nextRun := time.Now()
 			for _, period := range periods {
-				if strings.Contains(period, "h") {
+				if strings.Contains(period, "m") {
+					periodI, err := strconv.Atoi(period[:len(period)-1])
+					if err != nil {
+						fmt.Printf("[TASK PARSE PERIOD ERR] %v\n", err)
+					}
+					nextRun = nextRun.Add(time.Minute * time.Duration(periodI))
+				} else if strings.Contains(period, "h") {
 					periodI, err := strconv.Atoi(period[:len(period)-1])
 					if err != nil {
 						fmt.Printf("[TASK PARSE PERIOD ERR] %v\n", err)
@@ -134,6 +173,7 @@ type PanelConfig struct {
 	DataAccess   map[string]map[string]func(DataArgs) any
 	Password     string
 	BackupConfig BackupConfig
+	LogsConfig   []LogConfig
 }
 
 var Config PanelConfig
