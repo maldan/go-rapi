@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/maldan/go-cmhp/cmhp_convert"
+	"github.com/maldan/go-rapi/rapi_const"
 	"github.com/maldan/go-rapi/rapi_error"
 	"sort"
 )
@@ -24,6 +25,7 @@ const TypeDateTime = "datetime"
 const TypeBool = "bool"
 const TypeBitmask = "bitmask"
 const TypeDataUrl = "dataUrl"
+const TypeFile = "file"
 
 type FieldInfo struct {
 	Name       string `json:"name"`
@@ -47,8 +49,9 @@ type DataSettings struct {
 }
 
 type DataArgs struct {
-	Id   string `json:"id"`
-	Data string `json:"data"`
+	Id    string                     `json:"id"`
+	Data  string                     `json:"data"`
+	Files map[string]rapi_const.File `json:"files"`
 
 	Filter map[string]string
 	Offset int
@@ -74,6 +77,9 @@ type ArgsUpdate struct {
 	Table string `json:"table"`
 	Id    string `json:"id"`
 	Data  string `json:"data"`
+
+	File0 rapi_const.File `json:"file0"`
+	File1 rapi_const.File `json:"file1"`
 }
 
 type DataApi struct {
@@ -157,7 +163,22 @@ func (u DataApi) PostById(args ArgsUpdate) {
 }
 
 func (u DataApi) PostCreate(args ArgsUpdate) {
+	files := map[string]rapi_const.File{}
+
+	m := map[string]any{}
+	json.Unmarshal([]byte(args.Data), &m)
+
+	for k, v := range m {
+		if v == "%%file0%%" {
+			files[k] = args.File0
+		}
+		if v == "%%file1%%" {
+			files[k] = args.File1
+		}
+	}
+
 	Config.DataAccess[args.Table][Create](DataArgs{
-		Data: args.Data,
+		Data:  args.Data,
+		Files: files,
 	})
 }

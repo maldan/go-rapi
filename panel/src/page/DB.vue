@@ -131,8 +131,6 @@
       >Export CSV</el-button
     >
 
-    <el-button type=""></el-button>
-
     <!-- Modal Edit -->
     <el-dialog v-model="isEditMode" title="Edit" width="50%" draggable>
       <!-- Content -->

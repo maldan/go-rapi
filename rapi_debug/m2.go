@@ -26,10 +26,12 @@ type RapiRequestLog struct {
 }
 
 type RapiRequestLogSearchArgs struct {
-	Url     string
-	Offset  int
-	Limit   int
-	Created time.Time
+	Url      string
+	Input    string
+	Response string
+	Offset   int
+	Limit    int
+	Created  time.Time
 }
 
 func (l *RapiRequestLog) SetRequest(method string, url string) *RapiRequestLog {

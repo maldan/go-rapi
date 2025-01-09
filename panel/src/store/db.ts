@@ -69,11 +69,37 @@ export const useDbStore = defineStore({
       ).data;
     },
     async create(value: any) {
-      return (
-        await Axios.post(`${HOST}/debug/data/create?table=${this.table}`, {
-          data: JSON.stringify(value),
-        })
-      ).data;
+      let hasFile = Object.values(value).filter((x) => x instanceof File);
+
+      if (hasFile) {
+        let formData = new FormData();
+        let data: any = {};
+        let id = 0;
+        for (let key in value) {
+          if (value[key] instanceof File) {
+            formData.append("file" + id, value[key], value[key].name);
+            data[key] = `%%file${id}%%`;
+            id += 1;
+          } else {
+            data[key] = value[key];
+          }
+        }
+
+        formData.set("data", JSON.stringify(data));
+
+        return (
+          await Axios.post(
+            `${HOST}/debug/data/create?table=${this.table}`,
+            formData
+          )
+        ).data;
+      } else {
+        return (
+          await Axios.post(`${HOST}/debug/data/create?table=${this.table}`, {
+            data: JSON.stringify(value),
+          })
+        ).data;
+      }
     },
     async update(id: number, value: any) {
       return (

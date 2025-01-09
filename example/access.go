@@ -33,7 +33,7 @@ var TestAccess = map[string]func(rapi_panel.DataArgs) any{
 				},
 
 				{
-					Name: "photo", IsHide: true, IsEdit: true, Type: rapi_panel.TypeDataUrl,
+					Name: "photo", IsHide: true, IsEdit: true, Type: rapi_panel.TypeFile,
 				},
 			},
 		}

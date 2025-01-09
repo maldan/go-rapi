@@ -25,12 +25,13 @@ type Context struct {
 	RemoteIP         string
 }
 
-type File struct {
+/*type File struct {
 	Name string
 	Mime string
 	Size int
 	Data []byte
 }
+*/
 
 type Handler interface {
 	Handle(args HandlerArgs)

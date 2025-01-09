@@ -98,6 +98,36 @@
         </template>
       </el-upload>
     </div>
+
+    <!-- File -->
+    <div v-if="info.type === 'file'">
+      <!-- <el-upload
+        ref="upload"
+        :limit="1"
+        :auto-upload="false"
+        :on-exceed="handleExceed"
+        :on-change="
+          (e) => {
+            fileSelected(e, tempRow, info.name, true);
+          }
+        "
+        :disabled="!info.isEdit"
+      >
+        <template #trigger>
+          <el-button type="primary" :disabled="!info.isEdit"
+            >Select {{ info.name }}</el-button
+          >
+        </template>
+      </el-upload> -->
+      <input
+        type="file"
+        @change="
+          (e) => {
+            fileSelected(e, tempRow, info.name, true);
+          }
+        "
+      />
+    </div>
   </div>
 </template>
 
@@ -135,17 +165,23 @@ function changeBitMask(isSet: boolean, current: number, pos: number): number {
   return current & ~(1 << pos);
 }
 
-function fileSelected(e: any, out: any, name: string) {
-  const reader = new FileReader();
-  reader.addEventListener(
-    "load",
-    () => {
-      out[name] = reader.result;
-    },
-    false
-  );
+function fileSelected(e: any, out: any, name: string, isReal: boolean) {
+  if (isReal) {
+    console.log(e);
+    out[name] = e.target.files[0];
+    //console.log(out[name]);
+  } else {
+    const reader = new FileReader();
+    reader.addEventListener(
+      "load",
+      () => {
+        out[name] = reader.result;
+      },
+      false
+    );
 
-  reader.readAsDataURL(e.raw);
+    reader.readAsDataURL(e.raw);
+  }
 }
 
 function getHeight(h: string) {

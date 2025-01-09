@@ -51,6 +51,14 @@
       </el-table-column>
 
       <el-table-column label="Input">
+        <template #header>
+          <el-input
+            v-model="requestStore.filter['input']"
+            @change="refresh"
+            size="small"
+            placeholder="Filter by input..."
+          />
+        </template>
         <template #default="scope">
           <pre
             v-if="toggleArgs[scope.row.id]"
@@ -62,6 +70,14 @@
       </el-table-column>
 
       <el-table-column label="Response">
+        <template #header>
+          <el-input
+            v-model="requestStore.filter['response']"
+            @change="refresh"
+            size="small"
+            placeholder="Filter by response..."
+          />
+        </template>
         <template #default="scope">
           <pre
             v-if="toggleArgs[scope.row.id]"

@@ -3,6 +3,7 @@ package rapi_rest
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/maldan/go-rapi/rapi_const"
 	"github.com/maldan/go-rapi/rapi_debug"
 	"github.com/maldan/go-rapi/rapi_error"
 	"io/ioutil"
@@ -85,7 +86,7 @@ func (r ApiHandler) Handle(args rapi_core.HandlerArgs) {
 					buffer := make([]byte, fileHeader.Size)
 					f.Read(buffer)
 					f.Close()
-					params[kk] = rapi_core.File{
+					params[kk] = rapi_const.File{
 						Name: fileHeader.Filename,
 						Mime: fileHeader.Header.Get("Content-Type"),
 						Size: int(fileHeader.Size),
@@ -160,11 +161,11 @@ func (r ApiHandler) Handle(args rapi_core.HandlerArgs) {
 		debugParams := make(map[string]any)
 		for k, v := range params {
 			switch v.(type) {
-			case rapi_core.File:
-				debugParams[k] = rapi_core.File{
-					Name: v.(rapi_core.File).Name,
-					Mime: v.(rapi_core.File).Mime,
-					Size: v.(rapi_core.File).Size,
+			case rapi_const.File:
+				debugParams[k] = rapi_const.File{
+					Name: v.(rapi_const.File).Name,
+					Mime: v.(rapi_const.File).Mime,
+					Size: v.(rapi_const.File).Size,
 				}
 			default:
 				debugParams[k] = v

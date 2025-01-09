@@ -146,9 +146,11 @@ func (r DebugApi) GetRequestList(args ArgsRequestListOffset) rapi_panel.SearchRe
 			json.Unmarshal(decodedBytes, &filter)
 
 			return OnRequestSearch(rapi_debug.RapiRequestLogSearchArgs{
-				Url:    filter["url"],
-				Offset: args.Offset,
-				Limit:  args.Limit,
+				Url:      filter["url"],
+				Input:    filter["input"],
+				Response: filter["response"],
+				Offset:   args.Offset,
+				Limit:    args.Limit,
 			})
 		}
 
